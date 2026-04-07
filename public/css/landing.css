@@ -1,18 +1,20 @@
 /* Premium Design Enhancements - Green Theme */
 :root {
-    --primary-color: #885c0a;
-    /* Golden Brown */
-    --primary-dark: #6b4908;
-    /* Darker Golden Brown */
-    --primary-light: #a67414;
-    /* Lighter Golden Brown */
-    --accent-color: #ffffff;
-    /* White for contrast */
+    --primary-color: #FF13F0;
+    /* Magenta */
+    --primary-dark: #D600C7;
+    /* Darker Magenta */
+    --primary-light: rgba(255, 19, 240, 0.1);
+    /* Lighter Magenta */
+    --secondary-color: #0F172A;
+    /* Dark Slate */
+    --accent-color: #38BDF8;
+    /* Cyan Accent */
     --text-light: #f5f5f5;
     --text-dark: #1a1a1a;
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 47, 186, 0.2);
+    --glass-bg: rgba(255, 19, 240, 0.05);
+    --glass-border: rgba(255, 19, 240, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(255, 19, 240, 0.15);
 }
 
 body {
@@ -46,17 +48,17 @@ body {
     }
 }
 
-@keyframes pulse-green {
+@keyframes pulse-primary {
     0% {
-        box-shadow: 0 0 0 0 rgba(0, 47, 186, 0.4);
+        box-shadow: 0 0 0 0 rgba(255, 19, 240, 0.4);
     }
 
     70% {
-        box-shadow: 0 0 0 15px rgba(0, 47, 186, 0);
+        box-shadow: 0 0 0 15px rgba(255, 19, 240, 0);
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(0, 47, 186, 0);
+        box-shadow: 0 0 0 0 rgba(255, 19, 240, 0);
     }
 }
 
@@ -96,7 +98,7 @@ body {
     color: #fff;
     padding: 10px 0;
     font-size: 0.9rem;
-    border-bottom: 1px solid rgba(0, 47, 186, 0.2);
+    border-bottom: 1px solid rgba(255, 19, 240, 0.2);
 }
 
 .top-bar i {
@@ -263,7 +265,7 @@ nav ul li a:not(.btn):hover:after {
 
 .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 47, 186, 0.4);
+    box-shadow: 0 8px 20px rgba(255, 19, 240, 0.4);
     color: #fff;
 }
 
@@ -389,7 +391,7 @@ nav ul li a:not(.btn):hover:after {
     align-items: center;
     justify-content: center;
     font-size: 32px;
-    box-shadow: 0 4px 20px rgba(0, 47, 186, 0.5);
+    box-shadow: 0 4px 20px rgba(255, 19, 240, 0.5);
     z-index: 9999;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-decoration: none;
@@ -399,7 +401,7 @@ nav ul li a:not(.btn):hover:after {
     transform: scale(1.1) rotate(10deg);
     background: #128C7E;
     color: white;
-    box-shadow: 0 10px 25px rgba(0, 47, 186, 0.6);
+    box-shadow: 0 10px 25px rgba(255, 19, 240, 0.6);
 }
 
 /* Footer Banner */
@@ -751,8 +753,8 @@ footer {
     padding: 2.5rem 2rem;
     background: #ffffff;
     border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 47, 186, 0.05), 0 5px 15px rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 47, 186, 0.08);
+    box-shadow: 0 15px 35px rgba(255, 19, 240, 0.05), 0 5px 15px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(255, 19, 240, 0.08);
     transition: transform 0.3s ease;
 }
 
@@ -776,7 +778,7 @@ footer {
 }
 
 .auth-card .btn-primary {
-    background: #885c0a;
+    background: #FF13F0;
     border: none;
     font-weight: 700;
     padding: 0.85rem 1.5rem;
@@ -788,7 +790,7 @@ footer {
 .auth-card .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(136, 92, 10, 0.3);
-    background: #885c0a;
+    background: #FF13F0;
 }
 
 .auth-card .form-control {
@@ -801,7 +803,7 @@ footer {
 
 .auth-card .form-control:focus {
     border-color: #002fba;
-    box-shadow: 0 0 0 3px rgba(0, 47, 186, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 19, 240, 0.1);
     background-color: #fff;
 }
 
@@ -835,4 +837,3 @@ footer {
         padding: 2rem 1.5rem;
     }
 }
-

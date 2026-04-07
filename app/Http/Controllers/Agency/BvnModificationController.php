@@ -50,7 +50,7 @@ class BvnModificationController extends Controller
             ->withQueryString();
 
         // Distinct user-specific banks (for dropdown)
-        $userBanks = AgentService::where('user_id', $user->id)
+        $banks = AgentService::where('user_id', $user->id)
             ->whereNotNull('bank')
             ->where('bank', '<>', '')
             ->distinct()
@@ -74,7 +74,7 @@ class BvnModificationController extends Controller
 
         // Return view with data
         return view('bvn.modification', compact(
-            'userBanks',
+            'banks',
             'crmSubmissions',
             'bankServices',
             'wallet',

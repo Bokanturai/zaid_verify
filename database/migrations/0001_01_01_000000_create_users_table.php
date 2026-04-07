@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -24,7 +23,7 @@ return new class extends Migration
             $table->date('birthdate')->nullable();
             $table->string('photo', 255)->nullable();
             $table->string('profile_photo_url')->nullable();
-            
+
             // Security & Auth
             $table->string('password');
             $table->string('pin')->nullable();
@@ -42,13 +41,13 @@ return new class extends Migration
             $table->text('address')->nullable();
 
             // Referral & Roles
-            $table->enum('role', ['personal', 'agent', 'partner', 'business', 'staff', 'checker', 'super_admin'])->default('personal');
+            $table->enum('role', ['personal', 'agent', 'partner', 'business', 'staff', 'checker', 'super_admin', 'api'])->default('personal');
             $table->enum('status', ['active', 'inactive', 'suspended', 'pending', 'query'])->default('active');
             $table->string('referral_code')->nullable();
             $table->decimal('referral_bonus', 15, 2)->default(0.0);
             $table->bigInteger('referred_by')->nullable();
             $table->decimal('limit', 12, 2)->default(0.00);
-            
+
             // System & Tracking
             $table->bigInteger('claim_id')->default(0);
             $table->string('performed_by')->nullable();

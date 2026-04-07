@@ -18,103 +18,115 @@ class VirtualAccountRepository
             return ['success' => false, 'message' => 'User not found'];
         }
 
-        // Check for required fields for Fintava
-        if (empty($userDetails->birthdate)) {
-            return ['success' => false, 'message' => 'Please update your profile with your date of birth to create a virtual account.'];
-        }
-
-        if (empty($userDetails->first_name) || empty($userDetails->last_name) || empty($userDetails->phone_no) || empty($userDetails->email) || empty($userDetails->address) || empty($userDetails->bvn)) {
-            return ['success' => false, 'message' => 'Please complete your profile details (First Name, Last Name, Phone, Email, Address, BVN) to create a virtual account.'];
+        // Monnify requires BVN and Phone
+        if (empty($userDetails->first_name) || empty($userDetails->last_name) || empty($userDetails->phone_no) || empty($userDetails->email) || empty($userDetails->bvn)) {
+            return ['success' => false, 'message' => 'Please complete your profile details (First Name, Last Name, Phone, Email, BVN) to create a virtual account.'];
         }
 
         try {
-            $token = env('FINTAVA_TOKEN');
-            $baseUrl = rtrim(env('FINTAVA_BASE_URL'), '/');
-            $url = $baseUrl . '/create/customer';
+            $accessToken = $this->getMonnifyAccessToken();
+            if (!$accessToken) {
+                return ['success' => false, 'message' => 'Failed to authenticate with payment provider.'];
+            }
+
+            $baseUrl = rtrim(env('MONNIFY_BASE_URL'), '/');
+            $url = $baseUrl . '/v2/bank-transfer/reserved-accounts';
+
+            $accountReference = 'QS-' . $loginUserId . '-' . uniqid();
 
             $data = [
-                'firstName' => $userDetails->first_name,
-                'lastName' => $userDetails->last_name,
-                'phoneNumber' => $userDetails->phone_no,
-                'email' => $userDetails->email,
-                'fundingMethod' => 'DYNAMIC_FUND',
-                'address' => $userDetails->address,
-                'dateOfBirth' => $userDetails->birthdate, // Expected format YYYY-MM-DD
+                'accountReference' => $accountReference,
+                'accountName' => $userDetails->first_name . ' ' . $userDetails->last_name,
+                'currencyCode' => 'NGN',
+                'contractCode' => env('MONNIFY_CONTRACT'),
+                'customerEmail' => $userDetails->email,
+                'customerName' => $userDetails->first_name . ' ' . $userDetails->last_name,
                 'bvn' => $userDetails->bvn,
-                'nin' => $userDetails->nin ?? '77307992925',
+                'getAllAvailableBanks' => true,
             ];
 
-            Log::info('Fintava API Request: ', $data);
-
-            $response = Http::withHeaders([
-                'accept' => 'application/json',
-                'content-type' => 'application/json',
-                'Authorization' => 'Bearer ' . $token, // Assuming Fintava uses Bearer token; adjust if it's a custom header
-            ])->post($url, $data);
-
-            Log::info('Fintava API Response: ' . $response->body());
-
-            if (!$response->successful()) {
-                $errorData = $response->json();
-                $errorMessage = 'Fintava API Error: ' . $response->status();
-                $rawMsg = '';
-
-                if (isset($errorData['message'])) {
-                    $rawMsg = $errorData['message'];
-                } elseif (isset($errorData['errors'])) {
-                    $rawMsg = $errorData['errors'];
-                }
-
-                if (!empty($rawMsg)) {
-                    // Extract first error if it's an array
-                    if (is_array($rawMsg)) {
-                        $rawMsg = reset($rawMsg);
-                    }
-                    
-                    if (is_string($rawMsg)) {
-                        // Clean technical prefixes
-                        $errorMessage = preg_replace('/^(TypeORMError|Error):\s*/i', '', $rawMsg);
-                    } else {
-                        $errorMessage = json_encode($rawMsg);
-                    }
-                }
-                
-                throw new Exception($errorMessage);
+            if (!empty($userDetails->nin)) {
+                $data['nin'] = $userDetails->nin;
             }
+
+            Log::info('Monnify Reserved Account Request: ', $data);
+
+            $response = Http::withToken($accessToken)
+                ->post($url, $data);
+
+            Log::info('Monnify Reserved Account Response: ' . $response->body());
 
             $responseData = $response->json();
 
-            // Based on typical Fintava structure (need to verify exact field names from successful response)
-            // Assuming successful response contains virtual account details
-            if ($response->status() === 201 || (isset($responseData['status']) && ($responseData['status'] === true || $responseData['status'] === 'success' || $responseData['status'] === 200))) {
-                
-                $data = $responseData['data'] ?? [];
-                $walletData = $data['wallet'] ?? [];
-                $userInfo = $data['userInfo'] ?? [];
+            if ($response->successful() && ($responseData['requestSuccessful'] ?? false) === true) {
+                $accounts = $responseData['responseBody']['accounts'] ?? [];
+                $reservationReference = $responseData['responseBody']['reservationReference'] ?? null;
 
-                DB::table('virtual_accounts')->insert([
-                    'user_id' => $loginUserId,
-                    'accountReference' => $walletData['id'] ?? ($userInfo['id'] ?? 'FNT-' . uniqid()),
-                    'accountNo' => $walletData['accountNumber'] ?? 'Pending',
-                    'accountName' => $walletData['accountName'] ?? ($userDetails->first_name . ' ' . $userDetails->last_name),
-                    'bankName' => 'Loma Bank',
-                    'status' => '1',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                return ['success' => true, 'message' => 'Virtual Account Created Successfully'];
-            } else {
-                $errorMsg = $responseData['message'] ?? 'Failed to create virtual account';
-                if (is_array($errorMsg)) {
-                    $errorMsg = json_encode($errorMsg);
+                if (empty($accounts)) {
+                    throw new Exception("No account details returned from provider.");
                 }
-                return ['success' => false, 'message' => $errorMsg];
+
+                // Delete existing virtual accounts for this user to avoid confusion if re-creating
+                DB::table('virtual_accounts')->where('user_id', $loginUserId)->delete();
+
+                foreach ($accounts as $account) {
+                    DB::table('virtual_accounts')->insert([
+                        'user_id' => $loginUserId,
+                        'accountReference' => $accountReference,
+                        'reservation_reference' => $reservationReference,
+                        'accountNo' => $account['accountNumber'],
+                        'accountName' => $account['accountName'],
+                        'bankName' => $account['bankName'],
+                        'bankCode' => $account['bankCode'],
+                        'status' => '1',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+
+                return ['success' => true, 'message' => 'Virtual Account(s) Created Successfully'];
+            } else {
+                $errorMessage = $responseData['responseMessage'] ?? 'Failed to create virtual account';
+                throw new Exception($errorMessage);
             }
 
         } catch (\Exception $e) {
-            Log::error('Error creating Fintava virtual account for user ' . $loginUserId . ': ' . $e->getMessage());
+            Log::error('Error creating Monnify virtual account for user ' . $loginUserId . ': ' . $e->getMessage());
             return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Get Monnify Access Token
+     */
+    private function getMonnifyAccessToken()
+    {
+        try {
+            $apiKey = env('MONNIFY_API_KEY');
+            $secretKey = env('MONNIFY_SECRET');
+            $baseUrl = rtrim(env('MONNIFY_BASE_URL'), '/');
+
+            $url = $baseUrl . '/v1/auth/login';
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic ' . base64_encode($apiKey . ':' . $secretKey),
+            ])->post($url);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['responseBody']['accessToken'] ?? null;
+            }
+
+            Log::error('Monnify Auth Error details:', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'apiKey' => env('MONNIFY_API_KEY'),
+                'url' => $url
+            ]);
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Monnify Auth Exception: ' . $e->getMessage());
+            return null;
         }
     }
 }

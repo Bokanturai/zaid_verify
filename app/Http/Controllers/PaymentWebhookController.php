@@ -20,14 +20,17 @@ class PaymentWebhookController extends Controller
 {
     public function handleWebhook(Request $request)
     {
-        // Log raw body first (helps debugging if payload parsing fails)
-        Log::info('Fintava RAW Webhook Body: '.$request->getContent());
+        $rawBody = $request->getContent();
+        
+        // Detect provider
+        if ($request->hasHeader('monnify-signature')) {
+            return $this->handleMonnifyWebhook($request);
+        }
 
-        $payload = $request->all();
-        Log::info('Fintava webhook hit:', ['payload' => $payload]);
+        // Default to Fintava logic
+        Log::info('Fintava RAW Webhook Body: ' . $rawBody);
+        $payload = json_decode($rawBody, true) ?? $request->all();
 
-        // Fintava usually provides a token or signature in headers
-        // For now, we will log headers and proceed if payload is valid
         if (!$this->verifyFintavaWebhook($request)) {
             Log::warning('Invalid Fintava webhook signature or token received', [
                 'headers' => $request->headers->all(),
@@ -40,11 +43,80 @@ class PaymentWebhookController extends Controller
             $this->processFintavaTransaction($payload);
             return response()->json(['status' => 'success', 'message' => 'Processed'], 200);
         } catch (\Throwable $e) {
-            Log::error('Error processing Fintava webhook: '.$e->getMessage(), [
+            Log::error('Error processing Fintava webhook: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'payload' => $payload
             ]);
             return response()->json(['error' => 'Server error'], 500);
+        }
+    }
+
+    public function handleMonnifyWebhook(Request $request)
+    {
+        $signature = $request->header('monnify-signature');
+        $requestBody = $request->getContent();
+        $clientSecret = env('MONNIFY_SECRET');
+        
+        $computedSignature = hash_hmac('sha512', $requestBody, $clientSecret);
+
+        if ($signature !== $computedSignature) {
+            Log::warning('Invalid Monnify webhook signature', [
+                'received' => $signature,
+                'computed' => $computedSignature
+            ]);
+            return response()->json(['error' => 'Invalid signature'], 401);
+        }
+
+        $payload = json_decode($requestBody, true);
+        Log::info('Monnify webhook hit:', ['payload' => $payload]);
+
+        try {
+            if (($payload['eventType'] ?? '') === 'SUCCESSFUL_TRANSACTION') {
+                $this->processMonnifyTransaction($payload['eventData']);
+            }
+            return response()->json(['status' => 'success', 'message' => 'Processed'], 200);
+        } catch (\Throwable $e) {
+            Log::error('Error processing Monnify webhook: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'payload' => $payload
+            ]);
+            return response()->json(['error' => 'Server error'], 500);
+        }
+    }
+
+    private function processMonnifyTransaction($data)
+    {
+        Log::info('[Monnify Webhook Processing]:', ['data' => $data]);
+
+        $virtualAccountNo = $data['destinationAccount']['accountNumber'] ?? null;
+        $orderNo          = $data['transactionReference'] ?? null;
+        $amountPaid       = $data['amountPaid'] ?? 0;
+        $payerBankName    = $data['paymentMethod'] ?? 'Monnify';
+        $payerAccountName = $data['customer']['name'] ?? 'Monnify User';
+        $orderStatus      = $data['paymentStatus'] ?? 'PAID';
+
+        $service_description = 'Your wallet has been credited with ₦' . number_format($amountPaid, 2);
+
+        if (!$virtualAccountNo || !$orderNo) {
+            Log::warning('Monnify Webhook missing accountNumber or reference', ['data' => $data]);
+            return;
+        }
+
+        $virtualAccount = VirtualAccount::where('accountNo', $virtualAccountNo)->first();
+
+        if ($virtualAccount) {
+            $this->createTransactionForReservedAccount(
+                $virtualAccount->user_id,
+                $orderNo,
+                $amountPaid,
+                $payerBankName,
+                $payerAccountName,
+                $service_description,
+                $orderStatus,
+                $data
+            );
+        } else {
+            Log::warning('Virtual account not found for Monnify accountNumber: ' . $virtualAccountNo, ['data' => $data]);
         }
     }
 

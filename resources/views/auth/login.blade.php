@@ -19,15 +19,8 @@
         <div class="mb-3">
             <label class="tiny-label" for="email">Email Address</label>
             <div class="input-group">
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    value="{{ old('email') }}" 
-                    required 
-                    autofocus 
-                    autocomplete="username"
-                    class="form-control @error('email') is-invalid @enderror"
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
+                    autocomplete="username" class="form-control @error('email') is-invalid @enderror"
                     placeholder="name@company.com">
                 <span class="input-group-text">
                     <i class="ti ti-mail"></i>
@@ -42,15 +35,10 @@
         <div class="mb-3">
             <label class="tiny-label" for="password">Password</label>
             <div class="pass-group position-relative">
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    required 
-                    autocomplete="current-password"
-                    class="form-control @error('password') is-invalid @enderror"
-                    placeholder="Enter your password">
-                <span class="ti toggle-password ti-eye-off position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"></span>
+                <input type="password" id="password" name="password" required autocomplete="current-password"
+                    class="form-control @error('password') is-invalid @enderror" placeholder="Enter your password">
+                <span
+                    class="ti toggle-password ti-eye-off position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"></span>
                 @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -64,7 +52,8 @@
                 <label class="form-check-label small text-muted" for="remember_me">Keep me logged in</label>
             </div>
             @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="text-success small text-decoration-none fw-bold">Forgot Password?</a>
+                <a href="{{ route('password.request') }}" class="text-success small text-decoration-none fw-bold">Forgot
+                    Password?</a>
             @endif
         </div>
 
@@ -78,14 +67,14 @@
         {{-- Register Link --}}
         <div class="text-center">
             <p class="mb-0 small text-muted">
-                Don’t have an account? 
+                Don’t have an account?
                 <a href="{{ route('register') }}" class="text-success fw-bold text-decoration-none">Create One Now</a>
             </p>
         </div>
     </form>
-    
+
 
     <div class="text-center mt-5">
-        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Quick Slip</p>
+        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Zaidi Verify</p>
     </div>
 </x-guest-layout>

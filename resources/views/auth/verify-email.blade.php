@@ -10,7 +10,8 @@
     </div>
 
     @if (session('status') == 'verification-link-sent')
-        <div class="alert alert-success small text-center mb-4 border-0 shadow-sm" style="border-radius: 12px; background-color: #f0fdf4; color: #166534;">
+        <div class="alert alert-success small text-center mb-4 border-0 shadow-sm"
+            style="border-radius: 12px; background-color: #f0fdf4; color: #166534;">
             <i class="ti ti-circle-check me-2"></i> A new verification link has been sent!
         </div>
     @endif
@@ -32,6 +33,6 @@
     </div>
 
     <div class="text-center mt-5">
-        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Quick Slip</p>
+        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Zaidi Verify</p>
     </div>
 </x-guest-layout>

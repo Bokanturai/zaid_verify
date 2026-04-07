@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\HasDateFilter;
+
 class BonusHistory extends Model
 {
+    use HasDateFilter;
    protected $fillable = [
         'user_id',
         'referred_user_id',

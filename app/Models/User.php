@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use App\Traits\HasDateFilter;
+
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasDateFilter;
 
     /**
      * The attributes that are mass assignable.
@@ -89,5 +91,29 @@ class User extends Authenticatable implements MustVerifyEmail
     public function referrals()
     {
         return $this->hasMany(User::class, 'referred_by');
+    }
+
+    /**
+     * Relationship: A user has many transactions
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * Relationship: A user has one virtual account
+     */
+    public function virtualAccount()
+    {
+        return $this->hasOne(VirtualAccount::class);
+    }
+
+    /**
+     * Get the user's full name.
+     */
+    public function getFullnameAttribute()
+    {
+        return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
     }
 }

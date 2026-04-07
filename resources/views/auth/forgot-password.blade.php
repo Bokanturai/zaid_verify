@@ -19,15 +19,8 @@
         <div class="mb-4">
             <label class="tiny-label" for="email">Email Address</label>
             <div class="input-group">
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    value="{{ old('email') }}" 
-                    required 
-                    autofocus
-                    class="form-control @error('email') is-invalid @enderror"
-                    placeholder="name@company.com">
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
+                    class="form-control @error('email') is-invalid @enderror" placeholder="name@company.com">
                 <span class="input-group-text">
                     <i class="ti ti-mail"></i>
                 </span>
@@ -47,13 +40,13 @@
         {{-- Back to Login --}}
         <div class="text-center">
             <p class="mb-0 small text-muted">
-                Wait, I remember it! 
+                Wait, I remember it!
                 <a href="{{ route('login') }}" class="text-success fw-bold text-decoration-none">Return to Sign In</a>
             </p>
         </div>
     </form>
 
     <div class="text-center mt-5">
-        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Quick Slip</p>
+        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Zaidi Verify</p>
     </div>
 </x-guest-layout>

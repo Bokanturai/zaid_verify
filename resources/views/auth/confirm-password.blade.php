@@ -16,15 +16,10 @@
         <div class="mb-4">
             <label class="tiny-label" for="password">Security Password</label>
             <div class="pass-group position-relative">
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    required 
-                    autocomplete="current-password"
-                    class="form-control @error('password') is-invalid @enderror"
-                    placeholder="Verify your password">
-                <span class="ti toggle-password ti-eye-off position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"></span>
+                <input type="password" id="password" name="password" required autocomplete="current-password"
+                    class="form-control @error('password') is-invalid @enderror" placeholder="Verify your password">
+                <span
+                    class="ti toggle-password ti-eye-off position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"></span>
                 @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -39,7 +34,7 @@
         </div>
 
         <div class="text-center mt-5">
-            <p class="text-muted small mb-0">&copy; {{ date('Y') }} Quick Slip</p>
+            <p class="text-muted small mb-0">&copy; {{ date('Y') }} Zaidi Verify</p>
         </div>
     </form>
 </x-guest-layout>

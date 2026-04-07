@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\HasDateFilter;
+
 class Transaction extends Model
 {
-    use HasFactory;
+    use HasFactory, HasDateFilter;
 
     protected $fillable = [
         'user_id',
@@ -29,5 +31,13 @@ class Transaction extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relationship: A transaction is performed by a user (admin or staff)
+     */
+    public function performer()
+    {
+        return $this->belongsTo(User::class, 'performed_by');
     }
 }

@@ -21,17 +21,17 @@ class WalletController extends Controller
     {
         $userId = Auth::id();
 
-        $virtualAccount = VirtualAccount::where('user_id', $userId)->first();
+        $virtualAccounts = VirtualAccount::where('user_id', $userId)->get();
         $wallet = Wallet::where('user_id', $userId)->first();
 
         $walletData = [
-            'wallet_balance'    => $wallet->wallet_balance ?? 0,
+            'wallet_balance'    => $wallet->balance ?? 0,
             'bonus'             => $wallet->bonus ?? 0,
             'status'            => $wallet->status ?? 'inactive',
             'available_balance' => $wallet->available_balance ?? 0,
         ];
 
-        return view('wallet.index', compact('virtualAccount', 'walletData'));
+        return view('wallet.index', compact('virtualAccounts', 'walletData'));
     }
 
     /**
@@ -82,7 +82,7 @@ class WalletController extends Controller
             $bonusAmount = $wallet->bonus;
 
             // Update wallet balances
-            $wallet->wallet_balance += $bonusAmount;
+            $wallet->balance += $bonusAmount;
             $wallet->available_balance += $bonusAmount;
             $wallet->bonus = 0;
             $wallet->save();

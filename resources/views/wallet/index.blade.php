@@ -31,56 +31,59 @@
                 <div class="card border-0 shadow-sm h-100 rounded-4 p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="fw-bold mb-0"><i class="fas fa-university me-2 text-primary"></i>Automatic Funding</h5>
-                        @if($virtualAccount)
+                        @if($virtualAccounts->isNotEmpty())
                             <span class="badge bg-success text-white px-3 py-2 rounded-pill">Active</span>
                         @endif
                     </div>
 
-                    @if($virtualAccount)
-                        <!-- Bank Card Display -->
-                        <div class="virtual-account-card shadow-lg mb-3 position-relative overflow-hidden" 
-                             style="background: linear-gradient(135deg, #0d5c3e 0%, #0a4a31 100%); color: #ffd700; border-radius: 1.25rem; padding: 2rem;">
-                            
-                            <!-- Decorative Background Patterns -->
-                            <div class="position-absolute top-0 end-0 opacity-10">
-                                <div style="width: 200px; height: 200px; background: radial-gradient(circle, #ffd700 0%, transparent 70%);"></div>
-                            </div>
-                            <div class="position-absolute bottom-0 start-0 opacity-10">
-                                <div style="width: 150px; height: 150px; background: radial-gradient(circle, #ffd700 0%, transparent 70%);"></div>
-                            </div>
-                            
-                            <!-- Card Content -->
-                            <div class="position-relative">
-                                <div class="d-flex justify-content-between align-items-start mb-4">
-                                    <h4 class="fw-bold mb-0 text-white">{{ $virtualAccount->bankName }}</h4>
-                                    <i class="fas fa-microchip fa-2x" style="color: #ffd700; opacity: 0.8;"></i>
-                                </div>
-                                
-                                <div class="mb-4">
-                                    <p class="small text-uppercase mb-1" style="color: rgba(255, 215, 0, 0.8); letter-spacing: 1px;">Account Number</p>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <h2 class="mb-0 fw-bold" style="letter-spacing: 0.15em; color: #ffd700;">{{ $virtualAccount->accountNo }}</h2>
-                                        <button class="btn btn-sm rounded-3 py-1 px-2 border-0" 
-                                                style="background: rgba(255, 215, 0, 0.2); color: #ffd700;"
-                                                onclick="copyToClipboard('{{ $virtualAccount->accountNo }}', 'Account number copied!')">
-                                            <i class="fas fa-copy"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                    @if($virtualAccounts->isNotEmpty())
+                        <div class="row g-3">
+                            @foreach($virtualAccounts as $virtualAccount)
+                                <div class="col-12">
+                                    <!-- Bank Card Display -->
+                                    <div class="virtual-account-card shadow-lg position-relative overflow-hidden" 
+                                         style="background: linear-gradient(135deg, #0d5c3e 0%, #0a4a31 100%); color: #ffd700; border-radius: 1.25rem; padding: 1.5rem;">
+                                        
+                                        <!-- Decorative Background Patterns -->
+                                        <div class="position-absolute top-0 end-0 opacity-10">
+                                            <div style="width: 150px; height: 150px; background: radial-gradient(circle, #ffd700 0%, transparent 70%);"></div>
+                                        </div>
+                                        
+                                        <!-- Card Content -->
+                                        <div class="position-relative">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <h5 class="fw-bold mb-0 text-white">{{ $virtualAccount->bankName }}</h5>
+                                                <i class="fas fa-microchip fa-lg" style="color: #ffd700; opacity: 0.8;"></i>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <p class="small text-uppercase mb-1" style="color: rgba(255, 215, 0, 0.8); letter-spacing: 1px; font-size: 0.7rem;">Account Number</p>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <h3 class="mb-0 fw-bold" style="letter-spacing: 0.1em; color: #ffd700;">{{ $virtualAccount->accountNo }}</h3>
+                                                    <button class="btn btn-sm rounded-3 py-1 px-2 border-0" 
+                                                            style="background: rgba(255, 215, 0, 0.2); color: #ffd700;"
+                                                            onclick="copyToClipboard('{{ $virtualAccount->accountNo }}', 'Account number copied!')">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
 
-                                <div class="d-flex justify-content-between align-items-end">
-                                    <div>
-                                        <p class="small text-uppercase mb-1" style="color: rgba(255, 215, 0, 0.8); letter-spacing: 1px;">Account Name</p>
-                                        <h6 class="fw-bold mb-0 text-white">{{ $virtualAccount->accountName }}</h6>
-                                    </div>
-                                    <div class="px-3 py-2 rounded fw-bold" style="background: #ffd700; color: #0d5c3e; font-size: 0.75rem;">
-                                        SMART LINK
+                                            <div class="d-flex justify-content-between align-items-end">
+                                                <div>
+                                                    <p class="small text-uppercase mb-1" style="color: rgba(255, 215, 0, 0.8); letter-spacing: 1px; font-size: 0.7rem;">Account Name</p>
+                                                    <h6 class="fw-bold mb-0 text-white small">{{ $virtualAccount->accountName }}</h6>
+                                                </div>
+                                                <div class="px-2 py-1 rounded fw-bold" style="background: #ffd700; color: #0d5c3e; font-size: 0.65rem;">
+                                                    QUICK SLIP
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
-                        <div class="alert alert-info border-0 rounded-4 small p-3">
-                            <i class="fas fa-info-circle me-2"></i> Funds sent to this account are credited instantly to your wallet.
+                        <div class="alert alert-info border-0 rounded-4 small p-3 mt-3">
+                            <i class="fas fa-info-circle me-2"></i> Funds sent to any of these accounts are credited instantly to your wallet.
                         </div>
                     @else
                         <div class="text-center py-5">

@@ -16,21 +16,24 @@ export default {
             },
             colors: {
                 primary: {
-                    DEFAULT: '#F7F3ED',
-                    foreground: '#885c0a',
+                    DEFAULT: '#FFEDFB',
+                    foreground: '#FF13F0',
                 },
                 success: {
-                    DEFAULT: '#03C95A',
+                    DEFAULT: '#10B981',
                 },
                 warning: {
-                    DEFAULT: '#CBA135',
+                    DEFAULT: '#F59E0B',
                 },
                 danger: {
-                    DEFAULT: '#AE2012',
+                    DEFAULT: '#EF4444',
                 },
                 info: {
-                    DEFAULT: '#1D3557',
+                    DEFAULT: '#38BDF8',
                 },
+                secondary: {
+                    DEFAULT: '#0F172A',
+                }
             },
         },
     },

@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="text-center mb-4">
-         <div class="logo-container">
+        <div class="logo-container">
             <div class="logo-badge">
                 <img src="{{ asset('assets/images/logo/logo.png') }}" alt="Imam data sub Logo" style="height: 50px;">
             </div>
@@ -19,15 +19,8 @@
         <div class="mb-3">
             <label class="tiny-label" for="email">Email Address</label>
             <div class="input-group">
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    value="{{ old('email', $request->email) }}" 
-                    required 
-                    autofocus 
-                    autocomplete="username"
-                    class="form-control @error('email') is-invalid @enderror"
+                <input type="email" id="email" name="email" value="{{ old('email', $request->email) }}" required
+                    autofocus autocomplete="username" class="form-control @error('email') is-invalid @enderror"
                     placeholder="name@company.com">
                 <span class="input-group-text">
                     <i class="ti ti-mail"></i>
@@ -42,15 +35,10 @@
         <div class="mb-3">
             <label class="tiny-label" for="password">New Password</label>
             <div class="pass-group position-relative">
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    required 
-                    autocomplete="new-password"
-                    class="form-control @error('password') is-invalid @enderror"
-                    placeholder="Create a secure password">
-                <span class="ti toggle-password ti-eye-off position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"></span>
+                <input type="password" id="password" name="password" required autocomplete="new-password"
+                    class="form-control @error('password') is-invalid @enderror" placeholder="Create a secure password">
+                <span
+                    class="ti toggle-password ti-eye-off position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"></span>
                 @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -68,15 +56,12 @@
         <div class="mb-4">
             <label class="tiny-label" for="password_confirmation">Confirm Password</label>
             <div class="pass-group position-relative">
-                <input 
-                    type="password" 
-                    id="password_confirmation" 
-                    name="password_confirmation" 
-                    required 
+                <input type="password" id="password_confirmation" name="password_confirmation" required
                     autocomplete="new-password"
                     class="form-control @error('password_confirmation') is-invalid @enderror"
                     placeholder="Confirm new password">
-                <span class="ti toggle-password ti-eye-off position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"></span>
+                <span
+                    class="ti toggle-password ti-eye-off position-absolute end-0 top-50 translate-middle-y me-3 cursor-pointer"></span>
                 @error('password_confirmation')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -93,13 +78,13 @@
         {{-- Back to Login --}}
         <div class="text-center">
             <p class="mb-0 small text-muted">
-                Suddenly remembered? 
+                Suddenly remembered?
                 <a href="{{ route('login') }}" class="text-success fw-bold text-decoration-none">Back to Sign In</a>
             </p>
         </div>
     </form>
 
     <div class="text-center mt-5">
-        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Quick Slip</p>
+        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Zaidi Verify</p>
     </div>
 </x-guest-layout>

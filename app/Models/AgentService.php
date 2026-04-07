@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\HasDateFilter;
+
 class AgentService extends Model
 {
-    use HasFactory;
+    use HasFactory, HasDateFilter;
 
     protected $table = 'agent_services';
 

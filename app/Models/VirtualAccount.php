@@ -12,6 +12,8 @@ class VirtualAccount extends Model
         'accountNo',
         'accountName',
         'bankName',
+        'bankCode',
+        'reservation_reference',
         'status',
     ];
 

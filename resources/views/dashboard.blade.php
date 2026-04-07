@@ -30,7 +30,7 @@
                         <h4 class="fw-semibold text-dark mb-1 welcome-text">
                             Welcome back, {{ Auth::user()->first_name . ' ' . Auth::user()->surname ?? 'User' }} 👋
                         </h4>
-                        <small class="text-danger">Account ID: {{ $virtualAccount->accountNo ?? 'N/A' }} {{ $virtualAccount->bankName ?? 'N/A' }}</small>
+                        <small class="text-success">Account ID: {{ $virtualAccount->accountNo ?? 'N/A' }} {{ $virtualAccount->bankName ?? 'N/A' }}</small>
                     </div>
 
                     <!-- Wallet Info -->
@@ -70,8 +70,8 @@
                                 <p class="text-muted small mb-1">Total Spent</p>
                                 <h4 class="fw-bold mb-0">₦{{ number_format($totalTransactionAmount, 2) }}</h4>
                             </div>
-                            <div class="bg-danger bg-opacity-10 p-3 rounded-3">
-                                <i class="fas fa-arrow-down text-danger fs-20"></i>
+                            <div class="bg-success bg-opacity-10 p-3 rounded-3">
+                                <i class="fas fa-arrow-down text-success fs-20"></i>
                             </div>
                         </div>
                     </div>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +10,7 @@
     <meta name="author" content="Dreams Technologies">
     <meta name="robots" content="index, follow">
 
-      <title>Quick Slip - {{ $title ?? 'dashboard and services' }}</title>
+    <title>Zaidi Verify - {{ $title ?? 'dashboard and services' }}</title>
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('assets/img/logo/logo.png') }}" type="image/x-icon" />
@@ -27,7 +28,8 @@
     <!-- Custom App CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     @stack('styles')
 </head>
@@ -68,8 +70,9 @@
                         <!-- Left Side: Copyright -->
                         <div class="col-md-5 text-center text-md-start mb-2 mb-md-0">
                             <p class="mb-0 small">
-                                © <script>document.write(new Date().getFullYear())</script> 
-                                <strong class="text-white"> Quick Slip </strong>. 
+                                ©
+                                <script>document.write(new Date().getFullYear())</script>
+                                <strong class="text-white"> Zaidi Verify </strong>.
                                 All Rights Reserved.
                             </p>
                         </div>
@@ -108,7 +111,7 @@
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/js/feather.min.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.slimscroll.min.js') }}"></script>
-    
+
     <!-- Custom JS -->
     <script src="{{ asset('assets/js/script.js') }}"></script>
     <script src="{{ asset('assets/js/todo.js') }}"></script>
@@ -141,4 +144,5 @@
 
     @stack('scripts')
 </body>
+
 </html>
