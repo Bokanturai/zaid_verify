@@ -375,9 +375,35 @@ class IpeController extends Controller
     private function cleanApiResponse($response): string
     {
         if (is_array($response)) {
-            $toKeep = array_diff_key($response, array_flip(['status', 'message', 'response', 'success']));
-            return json_encode($toKeep);
+            // Prioritize human-readable message fields
+            if (isset($response['comment']) && is_string($response['comment'])) {
+                return $response['comment'];
+            }
+            if (isset($response['message']) && is_string($response['message'])) {
+                return $response['message'];
+            }
+
+            // Exclude common structural keys and format the rest nicely
+            $toExclude = ['status', 'success', 'tracking_id', 'reference', 'response', 'message', 'comment'];
+            $toKeep = array_diff_key($response, array_flip($toExclude));
+
+            if (empty($toKeep)) {
+                return (isset($response['success']) && $response['success']) ? 'Successful' : 'Processed';
+            }
+
+            $parts = [];
+            foreach ($toKeep as $key => $value) {
+                $label = ucfirst(str_replace(['_', '-'], ' ', $key));
+                if (is_bool($value)) {
+                    $parts[] = $label . ': ' . ($value ? 'Yes' : 'No');
+                } elseif (is_scalar($value)) {
+                    $parts[] = $label . ': ' . $value;
+                }
+            }
+
+            return !empty($parts) ? implode(', ', $parts) : 'Processed';
         }
+
         return (string) $response;
     }
 

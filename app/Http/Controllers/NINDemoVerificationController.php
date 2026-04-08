@@ -390,6 +390,8 @@ class NINDemoVerificationController extends Controller
     private function chargeForSlip($user, $fieldCode)
     {
          $service = ServiceManager::getServiceWithFields('Verification', [
+            ['name' => 'Free Slip', 'code' => 'V101', 'price' => 0],
+            ['name' => 'Regular Slip', 'code' => 'V102', 'price' => 100],
             ['name' => 'standard slip', 'code' => '611', 'price' => 100],
             ['name' => 'preminum slip', 'code' => '612', 'price' => 150],
         ]);
@@ -451,6 +453,28 @@ class NINDemoVerificationController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
+        }
+    }
+
+    public function freeSlip($nin_no)
+    {
+        try {
+            $this->chargeForSlip(Auth::user(), 'V101');
+            $repObj = new NIN_PDF_Repository();
+            return $repObj->regularPDF($nin_no);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function regularSlip($nin_no)
+    {
+        try {
+            $this->chargeForSlip(Auth::user(), 'V102');
+            $repObj = new NIN_PDF_Repository();
+            return $repObj->regularPDF($nin_no);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
     }
 

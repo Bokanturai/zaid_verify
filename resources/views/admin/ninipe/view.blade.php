@@ -248,7 +248,6 @@
                     </div>
                     <form method="POST" action="{{ route('admin.ninipe.update', $enrollmentInfo->id) }}" enctype="multipart/form-data">
                         @csrf
-                        @method('PUT')
                         <div class="modal-body p-4">
                             {{-- Status --}}
                             <div class="mb-3">
@@ -394,9 +393,7 @@
                             commentField.value = "";
                         }
                     });
-                }
-
-                // AJAX Status Check
+                     // AJAX Status Check
                 const btnCheckStatus = document.getElementById("btn-check-status");
                 if (btnCheckStatus) {
                     btnCheckStatus.addEventListener("click", function () {
@@ -405,45 +402,45 @@
                         Swal.fire({
                             title: 'Checking Status...',
                             text: 'Please wait while we fetch the latest status from Arewa Smart.',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonColor: '#6366f1',
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: 'Yes, Check',
+                            reverseButtons: true,
+                            showLoaderOnConfirm: true,
+                            customClass: {
+                                popup: 'rounded-4 shadow-sm',
+                                confirmButton: 'rounded-pill px-4',
+                                cancelButton: 'rounded-pill px-4'
+                            },
+                            preConfirm: () => {
+                                return fetch("{{ route('admin.ninipe.check', $enrollmentInfo->id) }}")
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            return response.json().then(json => { throw new Error(json.message || 'Network response was not ok'); });
+                                        }
+                                        return response.json();
+                                    })
+                                    .catch(error => {
+                                        Swal.showValidationMessage(`Request failed: ${error}`);
+                                    });
+                            },
+                            allowOutsideClick: () => !Swal.isLoading()
+                        }).then((result) => {
+                            if (result.isConfirmed && result.value.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Status Updated',
+                                    text: result.value.message,
+                                    customClass: { popup: 'rounded-4 shadow-sm' }
+                                }).then(() => {
+                                    window.location.reload();
+                                });
                             }
                         });
-
-                        fetch("{{ route('admin.ninipe.check', $enrollmentInfo->id) }}")
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Status Updated',
-                                        text: data.message,
-                                        timer: 2000,
-                                        showConfirmButton: false
-                                    }).then(() => {
-                                        window.location.reload();
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Oops...',
-                                        text: data.message,
-                                        confirmButtonColor: '#3085d6'
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Error:", error);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'System Error',
-                                    text: 'An unexpected error occurred while communicating with the server.',
-                                    confirmButtonColor: '#3085d6'
-                                });
-                            });
                     });
-                }
+                }             }
             });
         </script>
     </div>

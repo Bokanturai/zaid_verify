@@ -279,7 +279,7 @@
                                                         @if($transaction->performer)
                                                             {{ $transaction->performer->fullname }}
                                                         @else
-                                                            System / {{ $transaction->performed_by ?? 'Auto' }}
+                                                        {{ $transaction->performed_by ?? 'Auto' }}
                                                         @endif
                                                     </span>
                                                 </div>

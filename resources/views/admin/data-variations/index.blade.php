@@ -154,6 +154,42 @@
 
     @push('scripts')
         <script>
+            // Display Session Messages
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    timer: 3000,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm'
+                    }
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Sync Failed!',
+                    text: "{{ session('error') }}",
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm'
+                    }
+                });
+            @endif
+
+            @if($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    html: '<ul class="text-start mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm'
+                    }
+                });
+            @endif
+
             function confirmSync() {
                 Swal.fire({
                     title: 'Sync Data Plans?',
@@ -165,6 +201,11 @@
                     confirmButtonText: 'Yes, Sync Now',
                     cancelButtonText: 'Cancel',
                     showLoaderOnConfirm: true,
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm',
+                        confirmButton: 'rounded-pill px-4',
+                        cancelButton: 'rounded-pill px-4'
+                    },
                     preConfirm: () => {
                         document.getElementById('syncForm').submit();
                     }

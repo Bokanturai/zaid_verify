@@ -1,5 +1,5 @@
 <x-app-layout>
-    <title>Digital Verify - Transaction Receipt</title>
+    <title>Zaid Verify - Transaction Receipt</title>
 
     @push('styles')
     <style>
@@ -86,17 +86,80 @@
         .commission-box p { margin: 0; font-size: 0.85rem; font-weight: 600; }
         .commission-box h5 { margin: 0; font-weight: 700; font-size: 1.25rem; }
         
-        .status-badge {
-            display: inline-flex;
+        .success-animation-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-animation {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #0D5C3E, #20c997);
+            border-radius: 50%;
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
-            background: linear-gradient(135deg, #28a745, #20c997);
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(13, 92, 62, 0.3);
+            position: relative;
+            z-index: 2;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .success-animation::before,
+        .success-animation::after {
+            content: '';
+            position: absolute;
+            background: rgba(32, 201, 151, 0.4);
+            border-radius: 50%;
+            z-index: -1;
+            animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        .success-animation::before {
+            width: 100%;
+            height: 100%;
+            animation-delay: 0s;
+        }
+
+        .success-animation::after {
+            width: 100%;
+            height: 100%;
+            animation-delay: 0.6s;
+        }
+
+        .success-animation svg {
+            width: 40px;
+            height: 40px;
             color: white;
-            padding: 0.4rem 1.25rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            box-shadow: 0 2px 8px rgba(40,167,69,0.2);
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 0.6s ease-out 0.6s forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        @keyframes drawCheck {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+        
+        .success-text {
+            animation: slideUpFade 0.6s ease-out 0.8s backwards;
+        }
+
+        @keyframes slideUpFade {
+            0% { transform: translateY(15px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
         
         .action-buttons {
@@ -181,16 +244,22 @@
             <div class="receipt-body">
                 <!-- Brand Header -->
                 <div class="receipt-brand">
-                    <h4>Digital Verify</h4>
+                    <h4>Zaid Verify</h4>
                     <p class="text-muted small mb-0">Official Transaction Receipt</p>
                 </div>
 
-                <!-- Transaction Status -->
                 <div class="text-center mb-4">
-                    <span class="status-badge">
-                        <i class="bi bi-check-circle-fill"></i>
-                        Success
-                    </span>
+                    <div class="success-animation-wrapper">
+                        <div class="success-animation">
+                            <svg fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="M20 6L9 17l-5-5"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="success-text">
+                        <h4 class="mb-1 fw-bold" style="color: #0D5C3E;">Success!</h4>
+                        <p class="text-muted small mb-0">Transaction Completed</p>
+                    </div>
                 </div>
 
                 <!-- Transaction Title -->
@@ -228,10 +297,8 @@
                             <p>Request ID</p>
                             <h6>{{ session('request_id', 'N/A') }}</h6>
                         </div>
-                    </div>
 
-                    <div class="detail-box">
-                        <h6 class="section-label">Payment Breakdown</h6>
+              
                         @if(session('amount'))
                         <div class="detail-item">
                             <p>Value</p>
@@ -267,7 +334,7 @@
 
                 <!-- Footer -->
                 <div class="footer-note">
-                    <p class="mb-1"><strong>Thank you for choosing Digital Verify!</strong></p>
+                    <p class="mb-1"><strong>Thank you for choosing Zaid Verify!</strong></p>
                     <p class="mb-0">Computer generated receipt. No signature needed.</p>
                 </div>
             </div>
@@ -279,7 +346,7 @@
                 <button onclick="downloadReceipt()" class="btn btn-download">
                     <i class="bi bi-download me-2"></i>Download Receipt
                 </button>
-                <a href="{{ route('airtime') }}" class="btn btn-buy-again">
+                <a href="{{ url()->previous() !== url()->current() ? url()->previous() : '/dashboard' }}" class="btn btn-buy-again">
                     <i class="bi bi-arrow-repeat me-2"></i>Buy Again
                 </a>
             </div>

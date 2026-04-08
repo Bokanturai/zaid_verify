@@ -183,11 +183,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [NINDemoVerificationController::class, 'store'])->name('nin.demo.store');
         Route::get('/freeSlip/{id}', [NINDemoVerificationController::class, 'freeSlip'])->name('nin.demo.freeSlip');
         Route::get('/regularSlip/{id}', [NINDemoVerificationController::class, 'regularSlip'])->name('nin.demo.regularSlip');
+        Route::get('/standardSlip/{id}', [NINDemoVerificationController::class, 'standardSlip'])->name('nin.demo.standardSlip');
+        Route::get('/premiumSlip/{id}', [NINDemoVerificationController::class, 'premiumSlip'])->name('nin.demo.premiumSlip');
     });
 
     Route::prefix('nin-phone-verification')->group(function () {
         Route::get('/', [NINPhoneVerificationController::class, 'index'])->name('nin.phone.index');
         Route::post('/', [NINPhoneVerificationController::class, 'store'])->name('nin.phone.store');
+        Route::get('/regularSlip/{id}', [NINPhoneVerificationController::class, 'regularSlip'])->name('nin.phone.regularSlip');
+        Route::get('/standardSlip/{id}', [NINPhoneVerificationController::class, 'standardSlip'])->name('nin.phone.standardSlip');
+        Route::get('/premiumSlip/{id}', [NINPhoneVerificationController::class, 'premiumSlip'])->name('nin.phone.premiumSlip');
     });
 
     Route::prefix('bvn-verification')->group(function () {
@@ -195,6 +200,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [BvnverificationController::class, 'store'])->name('bvn.verification.store');
         Route::get('/standardBVN/{id}', [BvnverificationController::class, 'standardBVN'])->name("standardBVN");
         Route::get('/premiumBVN/{id}', [BvnverificationController::class, 'premiumBVN'])->name("premiumBVN");
+        Route::get('/plasticBVN/{id}', [BvnverificationController::class, 'plasticBVN'])->name("plasticBVN");
     });
 
     Route::prefix('tin-reg')->group(function () {
@@ -328,6 +334,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/', [CRMController::class, 'index'])->name('index');
                 Route::get('/{id}', [CRMController::class, 'show'])->name('show');
                 Route::post('/{id}/update', [CRMController::class, 'update'])->name('update');
+                Route::get('/check/{id}', [CRMController::class, 'checkStatus'])->name('check');
+                Route::post('/batch-check', [CRMController::class, 'batchCheck'])->name('batch-check');
                 Route::get('/export/csv', [CRMController::class, 'exportCsv'])->name('export-csv');
                 Route::get('/export/excel', [CRMController::class, 'exportExcel'])->name('export-excel');
             });

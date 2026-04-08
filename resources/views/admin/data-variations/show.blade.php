@@ -228,6 +228,42 @@
 
     @push('scripts')
         <script>
+            // Display Session Messages
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    timer: 3000,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm'
+                    }
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: "{{ session('error') }}",
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm'
+                    }
+                });
+            @endif
+
+            @if($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    html: '<ul class="text-start mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm'
+                    }
+                });
+            @endif
+
             function confirmDelete(id, name) {
                 Swal.fire({
                     title: 'Delete Variation?',
@@ -238,7 +274,12 @@
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
-                    reverseButtons: true
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm',
+                        confirmButton: 'rounded-pill px-4',
+                        cancelButton: 'rounded-pill px-4'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         document.getElementById('delete-form-' + id).submit();

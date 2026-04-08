@@ -128,14 +128,12 @@
         // Auto-dismiss alerts after 4 seconds
         document.addEventListener("DOMContentLoaded", function () {
             setTimeout(() => {
-                document.querySelectorAll('.alert.alert-dismissible').forEach(alert => {
+                document.querySelectorAll('.alert.alert-dismissible.show').forEach(alert => {
+                    // Make sure the element is still valid
                     if (alert && document.body.contains(alert)) {
-                        if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
-                            const alertInstance = bootstrap.Alert.getOrCreateInstance(alert);
-                            if (alertInstance) {
-                                alertInstance.close();
-                            }
-                        }
+                        // Simply fade it out, then remove it from DOM to avoid bootstrap instance destruction conflicts
+                        alert.classList.remove('show');
+                        setTimeout(() => alert.remove(), 150);
                     }
                 });
             }, 4000);

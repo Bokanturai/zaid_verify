@@ -149,7 +149,8 @@
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="bg-light">
                                         <tr>
-                                            <th class="ps-4 text-muted small fw-bold text-uppercase">Identifier</th>
+                                            <th class="ps-4 text-muted small fw-bold text-uppercase">S/N</th>
+                                            <th class="text-muted small fw-bold text-uppercase">Identifier</th>
                                             <th class="text-muted small fw-bold text-uppercase">Service</th>
                                             <th class="text-muted small fw-bold text-uppercase">Status</th>
                                             <th class="text-end pe-4 text-muted small fw-bold text-uppercase">Action</th>
@@ -159,9 +160,12 @@
                                         @forelse ($submissions as $submission)
                                             <tr>
                                                 <td class="ps-4">
+                                                    <span class="text-dark fw-bold">{{ ($submissions->currentPage() - 1) * $submissions->perPage() + $loop->iteration }}</span>
+                                                </td>
+                                                <td>
                                                     <span class="text-dark fw-bold d-block">{{ $submission->nin }}</span>
                                                     @if($submission->description)
-                                                        <small class="text-muted fs-11">{{ Str::limit($submission->description, 20) }}</small>
+                                                        <small class="text-muted fs-11">{{ Str::limit($submission->description, 30) }}</small>
                                                     @endif
                                                 </td>
                                                 <td>

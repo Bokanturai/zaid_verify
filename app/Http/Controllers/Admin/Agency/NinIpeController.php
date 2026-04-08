@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class NinIpeController extends Controller
 {
@@ -28,46 +29,50 @@ class NinIpeController extends Controller
             $enrollment = AgentService::findOrFail($id);
             
             $apiToken = env('AREWA_API_TOKEN');
-            $baseUrl = env('AREWA_BASE_URL');
-            $endpoint = $baseUrl . '/nin/validation'; // Using validation endpoint for IPE/Validation status
+            $baseUrl = env('AREWA_BASE_URL', 'https://api.arewasmart.com.ng/api/v1');
+            $endpoint = rtrim($baseUrl, '/') . '/nin/ipe';
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiToken,
-                'Accept' => 'application/json',
-            ])->get($endpoint, [
-                'reference' => $enrollment->reference,
-                'nin' => $enrollment->tracking_id, // For IPE, tracking_id is sent as nin
-            ]);
+            $response = Http::withToken($apiToken)
+                ->acceptJson()
+                ->get($endpoint, [
+                    'tracking_id' => $enrollment->tracking_id,
+                ]);
 
             if ($response->successful()) {
-                $data = $response->json();
-                if (isset($data['success']) && $data['success'] && isset($data['data'])) {
-                    $apiData = $data['data'];
+                $apiResponse = $response->json();
+                $cleanResponse = $this->cleanApiResponse($apiResponse);
+                
+                $updateData = [
+                    'comment' => $cleanResponse,
+                ];
 
-                    // Update enrollment
-                    $enrollment->status = $this->normalizeStatus($apiData['status'] ?? $enrollment->status);
-                    $enrollment->comment = $apiData['reason'] ?? ($apiData['comment'] ?? $enrollment->comment);
-                    
-                    if (isset($apiData['file_url']) && $apiData['file_url']) {
-                        $enrollment->file_url = $apiData['file_url'];
-                    }
-                    
-                    $enrollment->save();
+                $data = $apiResponse['data'] ?? $apiResponse;
 
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Status updated successfully using reference: ' . $enrollment->reference,
-                        'data' => [
-                            'status' => $enrollment->status,
-                            'comment' => $enrollment->comment,
-                            'file_url' => $enrollment->file_url,
-                            'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
-                        ]
-                    ]);
+                if (isset($data['status'])) {
+                    $updateData['status'] = $this->normalizeStatus($data['status']);
+                } elseif (isset($apiResponse['status'])) {
+                    $updateData['status'] = $this->normalizeStatus($apiResponse['status']);
                 }
+                
+                if (isset($data['file_url'])) {
+                    $updateData['file_url'] = $data['file_url'];
+                }
+
+                $enrollment->update($updateData);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status updated successfully using reference: ' . ($enrollment->reference ?? 'N/A'),
+                    'data' => [
+                        'status' => $enrollment->status,
+                        'comment' => $enrollment->comment,
+                        'file_url' => $enrollment->file_url,
+                        'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
+                    ]
+                ]);
             }
 
-            $lastError = $response->json('message') ?? 'Record not found.';
+            $lastError = $response->json('message') ?? $response->json('error') ?? 'Record not found or API error.';
 
             return response()->json([
                 'success' => false,
@@ -291,13 +296,45 @@ class NinIpeController extends Controller
         ]);
     }
 
+    private function cleanApiResponse($response): string
+    {
+        if (is_array($response)) {
+            $data = $response['data'] ?? $response;
+
+            if (isset($data['comment']) && is_string($data['comment'])) {
+                return $data['comment'];
+            }
+            if (isset($response['message']) && is_string($response['message'])) {
+                return $response['message'];
+            }
+
+            $toExclude = ['status', 'success', 'nin', 'response', 'message', 'comment', 'reference', 'file_url', 'tracking_id'];
+            $toKeep = array_diff_key($data, array_flip($toExclude));
+
+            if (empty($toKeep)) {
+                return (isset($response['success']) && $response['success']) ? 'Successful' : (isset($data['status']) ? ucfirst($data['status']) : 'Processed');
+            }
+
+            $parts = [];
+            foreach ($toKeep as $key => $value) {
+                if (!is_scalar($value) || strlen((string)$value) > 255) continue;
+                $label = ucfirst(str_replace(['_', '-'], ' ', $key));
+                $parts[] = $label . ': ' . (is_bool($value) ? ($value ? 'Yes' : 'No') : $value);
+            }
+
+            return !empty($parts) ? implode(', ', $parts) : 'Processed';
+        }
+
+        return (string) $response;
+    }
+
     private function normalizeStatus($status): string
     {
         $s = strtolower(trim((string) $status));
         
         return match ($s) {
             'successful', 'success', 'resolved', 'approved', 'completed' => 'successful',
-            'processing', 'in_progress', 'in-progress', 'submitted', 'new' => 'processing',
+            'processing', 'in_progress', 'in-progress', 'submitted', 'new', 'pending' => 'processing',
             'failed', 'rejected', 'error', 'declined', 'invalid', 'no record' => 'failed',
             'query', 'queried' => 'query',
             default => 'pending',

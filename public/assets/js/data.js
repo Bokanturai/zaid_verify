@@ -16,7 +16,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "GET",
-            url: "/fetch-data-bundles",
+            url: "/data/fetch-bundles",
             data: { id: serviceId },
             dataType: "json",
             success: function (response) {
@@ -60,7 +60,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "GET",
-            url: "/fetch-data-bundles-price",
+            url: "/data/fetch-price",
             data: { id: bundle },
             dataType: "json",
             success: function (response) {

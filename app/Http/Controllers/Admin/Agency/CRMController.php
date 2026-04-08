@@ -14,7 +14,9 @@ use App\Models\Wallet;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Str;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -311,5 +313,195 @@ class CRMController extends Controller
         return response()->streamDownload(function() use ($writer) {
             $writer->save('php://output');
         }, $fileName);
+    }
+    /**
+     * Check status of a single CRM request
+     */
+    public function checkStatus($id)
+    {
+        try {
+            $enrollment = AgentService::findOrFail($id);
+            
+            $apiToken = env('AREWA_API_TOKEN');
+            $baseUrl = env('AREWA_BASE_URL', 'https://api.arewasmart.com.ng/api/v1');
+            $endpoint = rtrim($baseUrl, '/') . '/bvn/crm';
+
+            $params = [];
+            if ($enrollment->reference) {
+                $params['reference'] = $enrollment->reference;
+            } elseif ($enrollment->batch_id) {
+                $params['batch_id'] = $enrollment->batch_id;
+            } elseif ($enrollment->ticket_id) {
+                $params['ticket_id'] = $enrollment->ticket_id;
+            }
+
+            if (empty($params)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No valid identifier found for this request.',
+                ], 400);
+            }
+
+            $response = Http::withToken($apiToken)
+                ->acceptJson()
+                ->get($endpoint, $params);
+
+            if ($response->successful()) {
+                $apiResponse = $response->json();
+                $cleanResponse = $this->cleanApiResponse($apiResponse);
+                
+                $updateData = [
+                    'comment' => $cleanResponse,
+                ];
+
+                $data = $apiResponse['data'] ?? $apiResponse;
+
+                if (isset($data['status'])) {
+                    $updateData['status'] = $this->normalizeStatus($data['status']);
+                } elseif (isset($apiResponse['status'])) {
+                    $updateData['status'] = $this->normalizeStatus($apiResponse['status']);
+                }
+                
+                if (isset($data['file_url'])) {
+                    $updateData['file_url'] = $data['file_url'];
+                }
+
+                $enrollment->update($updateData);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status updated successfully.',
+                    'data' => [
+                        'status' => $enrollment->status,
+                        'comment' => $enrollment->comment,
+                        'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
+                    ]
+                ]);
+            }
+
+            $lastError = $response->json('message') ?? 'Record not found or API error.';
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch status from API: ' . $lastError,
+            ], 400);
+
+        } catch (\Exception $e) {
+            Log::error('Admin CRM Status Check Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Batch check status for pending/processing CRM requests
+     */
+    public function batchCheck()
+    {
+        try {
+            $pendingSubmissions = AgentService::where('service_type', 'CRM')
+                ->whereIn('status', ['pending', 'processing'])
+                ->limit(20)
+                ->get();
+
+            $apiToken = env('AREWA_API_TOKEN');
+            $baseUrl = env('AREWA_BASE_URL', 'https://api.arewasmart.com.ng/api/v1');
+            $endpoint = rtrim($baseUrl, '/') . '/bvn/crm';
+
+            $checked = 0;
+
+            foreach ($pendingSubmissions as $submission) {
+                $params = [];
+                if ($submission->reference) {
+                    $params['reference'] = $submission->reference;
+                } elseif ($submission->batch_id) {
+                    $params['batch_id'] = $submission->batch_id;
+                } elseif ($submission->ticket_id) {
+                    $params['ticket_id'] = $submission->ticket_id;
+                }
+
+                if (empty($params)) continue;
+
+                $response = Http::withToken($apiToken)->get($endpoint, $params);
+
+                if ($response->successful()) {
+                    $apiResponse = $response->json();
+                    $data = $apiResponse['data'] ?? $apiResponse;
+                    
+                    $updateData = [
+                        'comment' => $this->cleanApiResponse($apiResponse),
+                    ];
+
+                    if (isset($data['status'])) {
+                        $updateData['status'] = $this->normalizeStatus($data['status']);
+                    }
+                    
+                    if (isset($data['file_url'])) {
+                        $updateData['file_url'] = $data['file_url'];
+                    }
+
+                    $submission->update($updateData);
+                    $checked++;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Batch check completed. Checked {$checked} submissions.",
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Admin CRM Batch Check Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred during batch check.',
+            ], 500);
+        }
+    }
+
+    private function cleanApiResponse($response): string
+    {
+        if (is_array($response)) {
+            $data = $response['data'] ?? $response;
+
+            if (isset($data['comment']) && is_string($data['comment'])) {
+                return $data['comment'];
+            }
+            if (isset($response['message']) && is_string($response['message'])) {
+                return $response['message'];
+            }
+
+            $toExclude = ['status', 'success', 'response', 'message', 'comment', 'reference', 'file_url', 'ticket_id', 'batch_id', 'field_code'];
+            $toKeep = array_diff_key($data, array_flip($toExclude));
+
+            if (empty($toKeep)) {
+                return (isset($response['success']) && $response['success']) ? 'Successful' : 'Processed';
+            }
+
+            $parts = [];
+            foreach ($toKeep as $key => $value) {
+                if (!is_scalar($value) || strlen((string)$value) > 255) continue;
+                $label = ucfirst(str_replace(['_', '-'], ' ', $key));
+                $parts[] = $label . ': ' . (is_bool($value) ? ($value ? 'Yes' : 'No') : $value);
+            }
+
+            return !empty($parts) ? implode(', ', $parts) : 'Processed';
+        }
+
+        return (string) $response;
+    }
+
+    private function normalizeStatus($status): string
+    {
+        $s = strtolower(trim((string) $status));
+        return match ($s) {
+            'successful', 'success', 'resolved', 'approved', 'completed' => 'successful',
+            'processing', 'in_progress', 'in-progress', 'submitted', 'new', 'pending' => 'processing',
+            'failed', 'rejected', 'error', 'declined', 'invalid', 'no record' => 'failed',
+            'query', 'queried' => 'query',
+            default => 'pending',
+        };
     }
 }

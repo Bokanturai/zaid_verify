@@ -331,66 +331,64 @@
 
     @push('scripts')
         <script>
-            // Use SweetAlert2 to show session alerts
+            // Display Session Messages using SweetAlert2
             @if(session('success'))
                 Swal.fire({
-                    toast: true,
-                    position: 'top-end',
                     icon: 'success',
-                    title: "{{ session('success') }}",
-                    showConfirmButton: false,
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
                     timer: 3000,
-                    timerProgressBar: true
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm'
+                    }
                 });
             @endif
 
             @if(session('error'))
                 Swal.fire({
-                    toast: true,
-                    position: 'top-end',
                     icon: 'error',
-                    title: "{{ session('error') }}",
-                    showConfirmButton: false,
-                    timer: 4000,
-                    timerProgressBar: true
+                    title: 'Error!',
+                    text: "{{ session('error') }}",
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm'
+                    }
                 });
             @endif
 
             @if($errors->any())
                 Swal.fire({
-                    toast: true,
-                    position: 'top-end',
                     icon: 'error',
-                    title: "{{ $errors->first() }}",
-                    showConfirmButton: false,
-                    timer: 5000,
-                    timerProgressBar: true
+                    title: 'Validation Error',
+                    html: '<ul class="text-start mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm'
+                    }
                 });
             @endif
 
-                function confirmSync() {
-                    Swal.fire({
-                        title: 'Sync Plans?',
-                        text: "Updating your local inventory from the provider's API. Continue?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#6366f1',
-                        confirmButtonText: '<i class="ti ti-refresh me-1"></i> Sync Now',
-                        cancelButtonText: 'Cancel',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            Swal.fire({
-                                title: 'Syncing...',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                            document.getElementById('sync-form').submit();
-                        }
-                    });
-                }
+            function confirmSync() {
+                Swal.fire({
+                    title: 'Sync Plans?',
+                    text: "Updating your local inventory from the provider's API. Continue?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#6366f1',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="ti ti-refresh me-1"></i> Sync Now',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true,
+                    showLoaderOnConfirm: true,
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm',
+                        confirmButton: 'rounded-pill px-4',
+                        cancelButton: 'rounded-pill px-4'
+                    },
+                    preConfirm: () => {
+                        document.getElementById('sync-form').submit();
+                    }
+                });
+            }
 
             function confirmDelete(id, name) {
                 Swal.fire({
@@ -402,7 +400,12 @@
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: 'Yes, Delete',
                     cancelButtonText: 'Cancel',
-                    reverseButtons: true
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-4 shadow-sm',
+                        confirmButton: 'rounded-pill px-4',
+                        cancelButton: 'rounded-pill px-4'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         document.getElementById('delete-form-' + id).submit();

@@ -250,6 +250,9 @@
                     CRM Service Requests
                 </h5>
                 <div class="d-flex align-items-center gap-3">
+                    <button onclick="batchCheck()" class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center">
+                        <i class="ti ti-refresh me-2"></i> Sync All Pending
+                    </button>
                     <div class="dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle shadow-sm d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ti ti-download me-2"></i> Export
@@ -356,9 +359,16 @@
                                         </div>
                                     </td>
                                     <td class="pe-4 text-end">
-                                        <a href="{{ route('admin.crm.show', $enrollment->id) }}" class="btn btn-icon btn-light btn-sm rounded-circle shadow-sm" data-bs-toggle="tooltip" title="View Details">
-                                            <i class="ti ti-eye text-primary"></i>
-                                        </a>
+                                        <div class="d-flex justify-content-end gap-2">
+                                            @if($enrollment->status === 'pending' || $enrollment->status === 'processing' || $enrollment->status === 'query')
+                                                <button onclick="checkStatus({{ $enrollment->id }})" class="btn btn-icon btn-light btn-sm rounded-circle shadow-sm" data-bs-toggle="tooltip" title="Check Status">
+                                                    <i class="ti ti-refresh text-info"></i>
+                                                </button>
+                                            @endif
+                                            <a href="{{ route('admin.crm.show', $enrollment->id) }}" class="btn btn-icon btn-light btn-sm rounded-circle shadow-sm" data-bs-toggle="tooltip" title="View Details">
+                                                <i class="ti ti-eye text-primary"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -387,4 +397,99 @@
             @endif
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function checkStatus(id) {
+            Swal.fire({
+                title: 'Check Status?',
+                text: "Updating record from the service provider's API.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#6366f1',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Check',
+                reverseButtons: true,
+                showLoaderOnConfirm: true,
+                customClass: {
+                    popup: 'rounded-4 shadow-sm',
+                    confirmButton: 'rounded-pill px-4',
+                    cancelButton: 'rounded-pill px-4'
+                },
+                preConfirm: () => {
+                    return fetch(`/admin/agency/crm/check/${id}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(json => { throw new Error(json.message || 'Network response was not ok'); });
+                            }
+                            return response.json();
+                        })
+                        .catch(error => {
+                            Swal.showValidationMessage(`Request failed: ${error}`);
+                        });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed && result.value.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: result.value.message,
+                        customClass: { popup: 'rounded-4 shadow-sm' }
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            });
+        }
+
+        function batchCheck() {
+            Swal.fire({
+                title: 'Sync All Pending?',
+                text: "Updating all pending CRM requests from the API. This may take a moment.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#6366f1',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sync Now',
+                reverseButtons: true,
+                showLoaderOnConfirm: true,
+                customClass: {
+                    popup: 'rounded-4 shadow-sm',
+                    confirmButton: 'rounded-pill px-4',
+                    cancelButton: 'rounded-pill px-4'
+                },
+                preConfirm: () => {
+                    return fetch('{{ route('admin.crm.batch-check') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(json => { throw new Error(json.message || 'Batch update failed'); });
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Request failed: ${error}`);
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed && result.value.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: result.value.message,
+                        customClass: { popup: 'rounded-4 shadow-sm' }
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            });
+        }
+    </script>
 </x-app-layout>

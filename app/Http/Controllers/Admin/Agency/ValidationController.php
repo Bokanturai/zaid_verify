@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\ServiceField;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ValidationController extends Controller
 {
@@ -28,45 +29,51 @@ class ValidationController extends Controller
             
             $apiToken = env('AREWA_API_TOKEN');
             $baseUrl = env('AREWA_BASE_URL');
-            $endpoint = $baseUrl . '/nin/validation';
+            $endpoint = rtrim($baseUrl, '/') . '/nin/validation';
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiToken,
-                'Accept' => 'application/json',
-            ])->get($endpoint, [
-                'reference' => $enrollment->reference,
+            $payload = [
+                'description' => $enrollment->description ?? "Admin Status Check",
                 'nin' => $enrollment->nin,
-            ]);
+                'field_code' => '015'
+            ];
+
+            $response = Http::withToken($apiToken)
+                ->acceptJson()
+                ->get($endpoint, $payload);
 
             if ($response->successful()) {
-                $data = $response->json();
-                if (isset($data['success']) && $data['success'] && isset($data['data'])) {
-                    $apiData = $data['data'];
+                $apiResponse = $response->json();
+                $cleanResponse = $this->cleanApiResponse($apiResponse);
+                
+                $updateData = [
+                    'comment' => $cleanResponse,
+                ];
 
-                    // Update enrollment
-                    $enrollment->status = $this->normalizeStatus($apiData['status'] ?? $enrollment->status);
-                    $enrollment->comment = $apiData['reason'] ?? ($apiData['comment'] ?? $enrollment->comment);
-                    
-                    if (isset($apiData['file_url']) && $apiData['file_url']) {
-                        $enrollment->file_url = $apiData['file_url'];
-                    }
-                    
-                    $enrollment->save();
-
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Status updated successfully using reference: ' . $enrollment->reference,
-                        'data' => [
-                            'status' => $enrollment->status,
-                            'comment' => $enrollment->comment,
-                            'file_url' => $enrollment->file_url,
-                            'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
-                        ]
-                    ]);
+                if (isset($apiResponse['status'])) {
+                    $updateData['status'] = $this->normalizeStatus($apiResponse['status']);
+                } elseif (isset($apiResponse['response'])) {
+                    $updateData['status'] = $this->normalizeStatus($apiResponse['response']);
                 }
+                
+                if (isset($apiResponse['file_url'])) {
+                    $updateData['file_url'] = $apiResponse['file_url'];
+                }
+
+                $enrollment->update($updateData);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status updated successfully using reference: ' . ($enrollment->reference ?? 'N/A'),
+                    'data' => [
+                        'status' => $enrollment->status,
+                        'comment' => $enrollment->comment,
+                        'file_url' => $enrollment->file_url,
+                        'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
+                    ]
+                ]);
             }
 
-            $lastError = $response->json('message') ?? 'Record not found.';
+            $lastError = $response->json('message') ?? $response->json('error') ?? 'Record not found or API error.';
 
             return response()->json([
                 'success' => false,
@@ -74,6 +81,7 @@ class ValidationController extends Controller
             ], 400);
 
         } catch (\Exception $e) {
+            Log::error('Admin Validation Status Check Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred: ' . $e->getMessage(),
@@ -284,13 +292,51 @@ class ValidationController extends Controller
         ]);
     }
 
+    private function cleanApiResponse($response): string
+    {
+        if (is_array($response)) {
+            // Prioritize human-readable message fields
+            if (isset($response['comment']) && is_string($response['comment'])) {
+                return $response['comment'];
+            }
+            if (isset($response['message']) && is_string($response['message'])) {
+                return $response['message'];
+            }
+
+            // Exclude common structural keys and format the rest nicely
+            $toExclude = ['status', 'success', 'nin', 'response', 'message', 'comment', 'reference', 'file_url'];
+            $toKeep = array_diff_key($response, array_flip($toExclude));
+
+            if (empty($toKeep)) {
+                return (isset($response['success']) && $response['success']) ? 'Successful' : (isset($response['status']) ? ucfirst($response['status']) : 'Processed');
+            }
+
+            $parts = [];
+            foreach ($toKeep as $key => $value) {
+                // Skip non-scalar values and very long strings (potential base64)
+                if (!is_scalar($value) || strlen((string)$value) > 255) continue;
+
+                $label = ucfirst(str_replace(['_', '-'], ' ', $key));
+                if (is_bool($value)) {
+                    $parts[] = $label . ': ' . ($value ? 'Yes' : 'No');
+                } else {
+                    $parts[] = $label . ': ' . $value;
+                }
+            }
+
+            return !empty($parts) ? implode(', ', $parts) : 'Processed';
+        }
+
+        return (string) $response;
+    }
+
     private function normalizeStatus($status): string
     {
         $s = strtolower(trim((string) $status));
         
         return match ($s) {
             'successful', 'success', 'resolved', 'approved', 'completed' => 'successful',
-            'processing', 'in_progress', 'in-progress', 'submitted', 'new' => 'processing',
+            'processing', 'in_progress', 'in-progress', 'submitted', 'new', 'pending' => 'processing',
             'failed', 'rejected', 'error', 'declined', 'invalid', 'no record' => 'failed',
             'query', 'queried' => 'query',
             default => 'pending',

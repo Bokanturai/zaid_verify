@@ -253,7 +253,6 @@
                 </div>
                 <form method="POST" action="{{ route('admin.vnin-nibss.update', $enrollmentInfo->id) }}" enctype="multipart/form-data">
                     @csrf
-                    @method('PUT')
                     <div class="modal-body p-4">
                         {{-- Status --}}
                         <div class="mb-3">
