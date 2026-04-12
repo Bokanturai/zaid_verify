@@ -41,4 +41,8 @@ return [
         ],
     ],
 
+    'monnify' => [
+        'secret' => env('MONNIFY_SECRET'),
+    ],
+
 ];

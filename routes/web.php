@@ -67,7 +67,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/fintava/webhook', [PaymentWebhookController::class, 'handleWebhook'])
+Route::post('/monnify/webhook', [PaymentWebhookController::class, 'handleWebhook'])
     ->middleware('throttle:60,1');
 
 /*

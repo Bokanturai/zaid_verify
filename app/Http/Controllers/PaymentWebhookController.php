@@ -2,319 +2,143 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\signatureHelper;
-use App\Jobs\ProcessVatCharge;
-use App\Mail\PaymentNotifyMail;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Models\VirtualAccount;
 use App\Models\Wallet;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Illuminate\Support\Facades\DB;
+
 
 class PaymentWebhookController extends Controller
 {
+
     public function handleWebhook(Request $request)
     {
-        $rawBody = $request->getContent();
-        
-        // Detect provider
-        if ($request->hasHeader('monnify-signature')) {
-            return $this->handleMonnifyWebhook($request);
-        }
-
-        // Default to Fintava logic
-        Log::info('Fintava RAW Webhook Body: ' . $rawBody);
-        $payload = json_decode($rawBody, true) ?? $request->all();
-
-        if (!$this->verifyFintavaWebhook($request)) {
-            Log::warning('Invalid Fintava webhook signature or token received', [
-                'headers' => $request->headers->all(),
-                'payload' => $payload
+        // Verify the signature
+        if (!$this->verifySignature($request)) {
+            Log::warning('Monnify webhook signature mismatch.', [
+                'received' => $request->header('Monnify-Signature'),
+                'payload' => $request->getContent()
             ]);
             return response()->json(['error' => 'Invalid signature'], 401);
         }
 
-        try {
-            $this->processFintavaTransaction($payload);
-            return response()->json(['status' => 'success', 'message' => 'Processed'], 200);
-        } catch (\Throwable $e) {
-            Log::error('Error processing Fintava webhook: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'payload' => $payload
-            ]);
-            return response()->json(['error' => 'Server error'], 500);
-        }
-    }
-
-    public function handleMonnifyWebhook(Request $request)
-    {
-        $signature = $request->header('monnify-signature');
-        $requestBody = $request->getContent();
-        $clientSecret = env('MONNIFY_SECRET');
-        
-        $computedSignature = hash_hmac('sha512', $requestBody, $clientSecret);
-
-        if ($signature !== $computedSignature) {
-            Log::warning('Invalid Monnify webhook signature', [
-                'received' => $signature,
-                'computed' => $computedSignature
-            ]);
-            return response()->json(['error' => 'Invalid signature'], 401);
-        }
-
-        $payload = json_decode($requestBody, true);
-        Log::info('Monnify webhook hit:', ['payload' => $payload]);
-
-        try {
-            if (($payload['eventType'] ?? '') === 'SUCCESSFUL_TRANSACTION') {
-                $this->processMonnifyTransaction($payload['eventData']);
-            }
-            return response()->json(['status' => 'success', 'message' => 'Processed'], 200);
-        } catch (\Throwable $e) {
-            Log::error('Error processing Monnify webhook: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'payload' => $payload
-            ]);
-            return response()->json(['error' => 'Server error'], 500);
-        }
-    }
-
-    private function processMonnifyTransaction($data)
-    {
-        Log::info('[Monnify Webhook Processing]:', ['data' => $data]);
-
-        $virtualAccountNo = $data['destinationAccount']['accountNumber'] ?? null;
-        $orderNo          = $data['transactionReference'] ?? null;
-        $amountPaid       = $data['amountPaid'] ?? 0;
-        $payerBankName    = $data['paymentMethod'] ?? 'Monnify';
-        $payerAccountName = $data['customer']['name'] ?? 'Monnify User';
-        $orderStatus      = $data['paymentStatus'] ?? 'PAID';
-
-        $service_description = 'Your wallet has been credited with ₦' . number_format($amountPaid, 2);
-
-        if (!$virtualAccountNo || !$orderNo) {
-            Log::warning('Monnify Webhook missing accountNumber or reference', ['data' => $data]);
-            return;
-        }
-
-        $virtualAccount = VirtualAccount::where('accountNo', $virtualAccountNo)->first();
-
-        if ($virtualAccount) {
-            $this->createTransactionForReservedAccount(
-                $virtualAccount->user_id,
-                $orderNo,
-                $amountPaid,
-                $payerBankName,
-                $payerAccountName,
-                $service_description,
-                $orderStatus,
-                $data
-            );
-        } else {
-            Log::warning('Virtual account not found for Monnify accountNumber: ' . $virtualAccountNo, ['data' => $data]);
-        }
-    }
-
-    private function verifyFintavaWebhook(Request $request)
-    {
-        // Many systems use a secret token in the header or environment variable
-        // Check if FINTAVA_TOKEN matches if provided in headers (placeholder)
-        // For now, we accept if it has the required data fields
+        // Process the webhook payload
         $payload = $request->all();
-        return isset($payload['accountNumber']) || isset($payload['data']['accountNumber']);
-    }
+        Log::info('Monnify webhook received:', $payload);
 
-    private function processFintavaTransaction($payload)
-    {
-        // Fintava payload structure often wraps data in a 'data' object or 'payload'
-        $data = $payload['data'] ?? $payload;
-        
-        Log::info('[FINTAVA Webhook Processing]:', ['data' => $data]);
+        $eventType = $payload['eventType'] ?? null;
 
-        $virtualAccountNo = $data['accountNumber'] ?? null;
-        $orderNo          = $data['reference'] ?? $data['id'] ?? null;
-        $amountPaid       = $data['amount'] ?? 0;
-        $payerBankName    = $data['senderBank'] ?? $data['bankName'] ?? 'Fintava';
-        $payerAccountName = $data['senderName'] ?? $data['accountName'] ?? 'Fintava User';
-        $orderStatus      = $data['status'] ?? 'success';
-
-        $service_description = 'Your wallet has been credited with ₦' . number_format($amountPaid, 2);
-
-        if (!$virtualAccountNo || !$orderNo) {
-            Log::warning('Fintava Webhook missing accountNumber or reference', ['data' => $data]);
-            return;
-        }
-
-        $virtualAccount = VirtualAccount::where('accountNo', $virtualAccountNo)->first();
-
-        if ($virtualAccount) {
-            $this->createTransactionForReservedAccount(
-                $virtualAccount->user_id,
-                $orderNo,
-                $amountPaid,
-                $payerBankName,
-                $payerAccountName,
-                $service_description,
-                $orderStatus,
-                $data
-            );
-        } else {
-            Log::warning('Virtual account not found for Fintava accountNumber: '.$virtualAccountNo, ['data' => $data]);
-        }
-    }
-
-
-    private function handlePayout($payload)
-    {
-        $orderNo = $payload['merchantOrderNo'] ?? $payload['orderNo'] ?? null;
-        $status = $payload['orderStatus'] ?? null; // usually 1 for success
-
-        if (!$orderNo) return;
-
-        $transaction = Transaction::where('transaction_ref', $orderNo)->first();
-        if ($transaction) {
-            $newStatus = ($status == 1) ? 'completed' : (($status == 2) ? 'failed' : 'pending');
-            $transaction->update([
-                'status' => $newStatus,
-                'metadata' => array_merge($transaction->metadata ?? [], ['webhook_update' => $payload])
-            ]);
-            Log::info("Payout transaction {$orderNo} updated to {$newStatus}");
-        }
-    }
-
-    private function createTransactionForReservedAccount($userId, $orderNo, $amountPaid, $payerBankName, $payerAccountName, $service_description, $orderStatus, $payload)
-    {
-        $transaction = Transaction::where('transaction_ref', $orderNo)->first();
-
-        if ($transaction) {
-            $this->updateTransaction($orderNo, $amountPaid, $payerBankName, $payerAccountName, $service_description, $orderStatus, $userId, $payload);
-        } else {
-            // Only credit wallet if status is successful (Fintava usually 'success' or 'completed' or status code)
-            if (in_array(strtolower($orderStatus), ['success', 'completed', '1', 'paid'])) {
-                $this->insertTransaction($userId, $orderNo, $amountPaid, $payerAccountName, $payerBankName, $service_description, $payload);
-                $this->updateWalletBalance($userId, $amountPaid);
-
-                // Check for 10,000 threshold logic
-                if ($amountPaid >= 10000) {
-                    $chargeAmount = 50;
-                    $chargeDesc = 'transaction lavy charge';
-                    $chargeRef = 'CHG-' . strtoupper(Str::random(10));
-                    
-                    $this->debitWallet($userId, $chargeAmount, $chargeDesc, $chargeRef, $orderNo);
-
-                    // Schedule VAT Charge (15 Naira) after 1 minute
-                    ProcessVatCharge::dispatch($userId)->delay(now()->addMinute());
-                }
-
-                $this->sendNotificationAndEmail($userId, $amountPaid, $orderNo, $payerBankName, 'Topup');
-            } else {
-                Log::info("Transaction {$orderNo} skipped due to status: {$orderStatus}");
+        if ($eventType === 'SUCCESSFUL_TRANSACTION') {
+            try {
+                DB::transaction(function () use ($payload) {
+                    $this->handleSuccessfulTransaction($payload);
+                });
+            } catch (\Exception $e) {
+                Log::error('Error processing Monnify webhook: ' . $e->getMessage());
+                return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
             }
+        } else {
+            Log::info('Unhandled event type: ' . $eventType);
+        }
+
+        return response()->json(['status' => 'success']);
+    }
+
+    private function verifySignature(Request $request)
+    {
+        $signature = $request->header('Monnify-Signature');
+        // Correct algorithm: SHA512(clientSecret + requestBody)
+        $computedSignature = hash('sha512', config('services.monnify.secret') . $request->getContent());
+
+        return hash_equals((string)$signature, $computedSignature);
+    }
+
+    private function handleSuccessfulTransaction($payload)
+    {
+        $eventData = $payload['eventData'];
+
+        if ($eventData['product']['type'] === 'RESERVED_ACCOUNT') {
+            $this->processTransaction($eventData);
         }
     }
 
-    private function updateTransaction($orderNo, $amountPaid, $payerBankName, $payerAccountName, $service_description, $orderStatus, $userId, $payload)
+    private function processTransaction($eventData)
     {
-        $status = (in_array(strtolower($orderStatus), ['success', 'completed', '1', 'paid'])) ? 'completed' : 'pending';
+        $transactionReference = $eventData['transactionReference'];
+        $amountPaid = $eventData['amountPaid'];
+        $email = $eventData['customer']['email'];
 
-        $user = User::find($userId);
-        $performedBy = $user ? $user->first_name . ' ' . $user->last_name : 'System';
+        // Use lockForUpdate to prevent race conditions if multiple webhooks arrive for the same ref
+        $transaction = Transaction::where('transaction_ref', $transactionReference)
+            ->lockForUpdate()
+            ->first();
 
-        Transaction::where('transaction_ref', $orderNo)
-            ->update([
-                'description'         => $service_description,
-                'amount'              => $amountPaid,
-                'payer_name'          => $payerAccountName,
-                'status'              => $status,
-                'performed_by'        => $performedBy,
-                'metadata'            => $payload,
-                'updated_at'          => Carbon::now(),
-            ]);
-
-        Log::info('Transaction updated for '.$orderNo);
+        if (!$transaction) {
+            $this->createNewTransaction($email, $transactionReference, $amountPaid, $eventData);
+        } else {
+            Log::info('Transaction already processed.', ['ref' => $transactionReference]);
+        }
     }
 
-    private function insertTransaction($userId, $orderNo, $amountPaid, $payerAccountName, $payerBankName, $service_description, $payload)
+    private function createNewTransaction($email, $transactionReference, $amountPaid, $eventData)
     {
-        $user = User::find($userId);
-        $performedBy = $user ? $user->first_name . ' ' . $user->last_name : 'System';
+        $user = User::where('email', $email)->first();
+        if ($user) {
+            $this->insertTransaction($user->id, $transactionReference, $amountPaid, $user->name, $email, $user->phone_number);
+            $this->updateWalletBalance($user->id, $amountPaid);
+        } else {
+            Log::error('User not found for Monnify transaction', ['email' => $email]);
+        }
+    }
+
+    private function insertTransaction($userId, $transactionReference, $amountPaid, $payerName, $payerEmail, $payerPhone)
+    {
+        $fee = $this->calculateFee($amountPaid);
+        $netAmount = round($amountPaid - $fee, 2);
 
         Transaction::create([
-            'user_id'        => $userId,
-            'payer_name'     => $payerAccountName,
-            'transaction_ref'=> $orderNo,
-            'type'           => 'credit',
-            'description'    => $service_description,
-            'amount'         => $amountPaid,
-            'status'         => 'completed',
-            'performed_by'   => $performedBy,
-            'metadata'       => $payload,
+            'user_id' => $userId,
+            'payer_name' => $payerName,
+            'transaction_ref' => $transactionReference,
+            'reference_id' => $transactionReference, // Both mapped for safety
+            'service_type' => 'Wallet Topup',
+            'description' => 'Your wallet has been credited with ₦' . number_format($amountPaid, 2),
+            'amount' => $amountPaid,
+            'fee' => $fee,
+            'net_amount' => $netAmount,
+            'type' => 'credit',
+            'status' => 'completed',
+            'metadata' => [
+                'payer_email' => $payerEmail,
+                'payer_phone' => $payerPhone,
+                'gateway' => 'Monnify'
+            ],
         ]);
-
-        Log::info('New transaction inserted for '.$orderNo);
     }
 
+    public function calculateFee($amountPaid)
+    {
+
+        return  $fee = round($amountPaid * 0.019, 2);
+    }
     private function updateWalletBalance($userId, $amountPaid)
     {
         $wallet = Wallet::where('user_id', $userId)->first();
+
         if ($wallet) {
-            $wallet->increment('balance', $amountPaid);
-            $wallet->increment('available_balance', $amountPaid);
-            
-            Log::info('Wallet updated for user '.$userId.' with amount '.$amountPaid);
+            $fee = $this->calculateFee($amountPaid);
+            $netAmount = round($amountPaid - $fee, 2);
+
+            // Atomic increment to prevent race conditions
+            $wallet->increment('balance', $netAmount);
+            $wallet->increment('available_balance', $netAmount);
+
+            Log::info("Wallet updated atomically for user $userId. Net Amount: $netAmount");
         } else {
-            Log::warning('Wallet not found for user ID: '.$userId);
-        }
-    }
-
-    private function debitWallet($userId, $amount, $desc, $ref, $relatedRef)
-    {
-        $wallet = Wallet::where('user_id', $userId)->first();
-        if ($wallet) {
-            $wallet->decrement('balance', $amount);
-            $wallet->decrement('available_balance', $amount);
-
-            Transaction::create([
-                'user_id' => $userId,
-                'transaction_ref' => $ref,
-                'type' => 'debit',
-                'amount' => $amount,
-                'description' => $desc,
-                'status' => 'completed',
-                'performed_by' => 'System',
-                'metadata' => ['related_transaction' => $relatedRef, 'type' => 'levy_charge'],
-            ]);
-        }
-    }
-
-    private function sendNotificationAndEmail($userId, $amountPaid, $orderNo, $bankName, $type)
-    {
-        try {
-            $user = User::query()->find($userId);
-            if (!$user || !$user->email) {
-                Log::warning('Skip email: No user or email found for ID '.$userId);
-                return;
-            }
-
-            $mail_data = [
-                'type'     => $type,
-                'amount'   => number_format($amountPaid, 2),
-                'ref'      => $orderNo,
-                'bankName' => $bankName,
-            ];
-
-            // Use queue() instead of send() to avoid blocking or failing the webhook response
-            Mail::to($user->email)->queue(new PaymentNotifyMail($mail_data));
-            
-            Log::info('Payment notification queued for '.$user->email);
-        } catch (\Throwable $e) {
-            // Log the error but do not throw, so the transaction remains "completed" in the database
-            Log::error('Non-blocking error in sendNotificationAndEmail: '.$e->getMessage());
+            Log::warning('Wallet not found for user ID: ' . $userId);
         }
     }
 }
