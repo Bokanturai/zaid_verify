@@ -19,8 +19,10 @@ class PaymentWebhookController extends Controller
         // Verify the signature
         if (!$this->verifySignature($request)) {
             Log::warning('Monnify webhook signature mismatch.', [
-                'received' => $request->header('Monnify-Signature'),
-                'payload' => $request->getContent()
+                'received_signature' => $request->header('Monnify-Signature'),
+                'computed_signature' => hash_hmac('sha512', $request->getContent(), config('services.monnify.secret')),
+                'payload' => $request->getContent(),
+                'secret_set' => !empty(config('services.monnify.secret'))
             ]);
             return response()->json(['error' => 'Invalid signature'], 401);
         }
@@ -50,8 +52,11 @@ class PaymentWebhookController extends Controller
     private function verifySignature(Request $request)
     {
         $signature = $request->header('Monnify-Signature');
-        // Correct algorithm: SHA512(clientSecret + requestBody)
-        $computedSignature = hash('sha512', config('services.monnify.secret') . $request->getContent());
+        $payload = $request->getContent();
+        $secret = config('services.monnify.secret');
+
+        // Monnify uses HMAC-SHA512 for webhook signatures
+        $computedSignature = hash_hmac('sha512', $payload, $secret);
 
         return hash_equals((string)$signature, $computedSignature);
     }
