@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="title">License & Permit Registration</x-slot>
 
-    <div class="container-fluid py-4">
+    <div class="container-fluid py-4 px-0 px-md-3">
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <!-- Header Card -->
-                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary text-white overflow-hidden">
+                <div class="card border-0 shadow-sm rounded-0 rounded-md-4 mb-4 bg-primary text-white overflow-hidden">
                     <div class="card-body p-4 position-relative">
                         <div class="row align-items-center">
                             <div class="col-md-8">
@@ -25,10 +25,10 @@
 
                 @include('pages.alart')
 
-                <div class="row g-4">
+                <div class="row g-0 g-md-4">
                     <!-- Form Section -->
                     <div class="col-md-5">
-                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card border-0 shadow-sm rounded-0 rounded-md-4 h-100">
                             <div class="card-header bg-transparent border-0 pt-4 px-4">
                                 <h5 class="fw-bold mb-0">Submit New Request</h5>
                             </div>
@@ -114,7 +114,7 @@
 
                     <!-- History Section -->
                     <div class="col-md-7">
-                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card border-0 shadow-sm rounded-0 rounded-md-4 h-100">
                             <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex align-items-center justify-content-between">
                                 <h5 class="fw-bold mb-0">Recent Requests</h5>
                                 <button onclick="batchCheck()" class="btn btn-sm btn-outline-primary rounded-pill shadow-sm">

@@ -6,7 +6,7 @@
         style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(136, 92, 10, 0.1); border-radius: 50%;">
     </div>
 
-    <div class="container">
+    <div class="container px-0 px-md-3">
         <div class="section-title text-center mb-5" data-aos="fade-up">
             <h4 style="color: #FF13F0; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;">Get In Touch
             </h4>
@@ -18,11 +18,11 @@
             </p>
         </div>
 
-        <div class="row align-items-center">
+        <div class="row g-0 g-md-4 align-items-center">
             <!-- Support Info -->
-            <div class="col-lg-5 mb-5 mb-lg-0" data-aos="fade-right">
-                <div class="support-info-card"
-                    style="background: linear-gradient(135deg, #FF13F0 0%, #D600C7 100%); padding: 40px; border-radius: 20px; color: white; box-shadow: 0 20px 40px rgba(255, 19, 240, 0.3);">
+            <div class="col-12 col-lg-5 mb-4 mb-lg-0" data-aos="fade-right">
+                <div class="support-info-card rounded-0 rounded-md-4"
+                    style="background: linear-gradient(135deg, #FF13F0 0%, #D600C7 100%); padding: 40px; color: white; box-shadow: 0 20px 40px rgba(255, 19, 240, 0.3);">
                     <h3 style="font-weight: 700; margin-bottom: 30px;">Contact Information</h3>
 
                     <div class="d-flex align-items-center mb-4">
@@ -76,9 +76,9 @@
             </div>
 
             <!-- Support Form -->
-            <div class="col-lg-7" data-aos="fade-left">
-                <div class="support-form-wrapper"
-                    style="background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); border: 1px solid #eee;">
+            <div class="col-12 col-lg-7" data-aos="fade-left">
+                <div class="support-form-wrapper rounded-0 rounded-md-4"
+                    style="background: #fff; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); border: 1px solid #eee;">
                     <h3 style="color: #111827; font-weight: 700; margin-bottom: 20px;">Send Us a Message</h3>
                     <form id="contact-support-form" action="#" method="POST">
                         <div class="row">

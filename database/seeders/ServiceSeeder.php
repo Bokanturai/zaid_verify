@@ -147,6 +147,16 @@ class ServiceSeeder extends Seeder
             ServiceManager::getServiceWithFields('VNIN TO NIBSS', [
                 ['name' => 'VNIN to NIBSS Submission', 'code' => '040', 'price' => 1500],
             ]);
+
+            // BVN USER
+            ServiceManager::getServiceWithFields('BVN USER', [
+                ['name' => 'Agency Enrolment', 'code' => 'BVN001', 'price' => 0],
+            ]);
+
+            // NIN Personalisation
+            ServiceManager::getServiceWithFields('NIN Personalisation', [
+                ['name' => 'NIN Personalisation', 'code' => 'NIN-P01', 'price' => 1500],
+            ]);
         
     }
 }

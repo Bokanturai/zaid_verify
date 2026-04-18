@@ -76,11 +76,17 @@ class NinValidationController extends Controller
         $fieldId = $request->service_field;
         $serviceField = ServiceField::with('service')->findOrFail($fieldId);
         
+        // Ensure this field belongs to the Validation service category
+        if (!$serviceField->service || $serviceField->service->name !== 'Validation') {
+            return back()->with('error', 'Invalid service selection.');
+        }
+
         $user = Auth::user();
         $role = $user->role ?? 'user';
         
         $servicePrice = $serviceField->prices()->where('user_type', $role)->value('price') ?? $serviceField->base_price;
 
+        // Preliminary check to avoid reaching the API if the balance is low
         $wallet = Wallet::where('user_id', $user->id)->first();
 
         if (!$wallet || $wallet->balance < $servicePrice) {
@@ -115,6 +121,13 @@ class NinValidationController extends Controller
         DB::beginTransaction();
 
         try {
+            // Re-fetch wallet with a lock to prevent race conditions during deduction
+            $wallet = Wallet::where('user_id', $user->id)->lockForUpdate()->first();
+            
+            if (!$wallet || $wallet->balance < $servicePrice) {
+                throw new \Exception('Insufficient wallet balance at the time of processing.');
+            }
+
             $wallet->decrement('balance', $servicePrice);
 
             $transactionRef = 'TRX-' . strtoupper(Str::random(10));
@@ -233,107 +246,6 @@ class NinValidationController extends Controller
         }
     }
 
-    public function batchCheck()
-    {
-        try {
-            $pendingSubmissions = AgentService::where('service_type', 'NIN_VALIDATION')
-                ->whereIn('status', ['pending', 'processing'])
-                ->where(function($query) {
-                    $query->where('updated_at', '<', now()->subMinutes(10))
-                          ->orWhereNull('updated_at');
-                })
-                ->limit(20)
-                ->get();
-
-            $apiKey = env('AREWA_API_TOKEN');
-            $apiBaseUrl = env('AREWA_BASE_URL');
-            $url = rtrim($apiBaseUrl, '/') . '/nin/validation';
-
-            $checked = 0;
-
-            foreach ($pendingSubmissions as $submission) {
-                try {
-                    $payload = [
-                        'description' => $submission->description ?? "Batch Check",
-                        'nin' => $submission->nin,
-                        'field_code' => '015'
-                    ];
-
-                    $response = Http::withToken($apiKey)
-                        ->acceptJson()
-                        ->get($url, $payload);
-
-                    $apiResponse = $response->json();
-
-                    if ($response->successful()) {
-                        $cleanResponse = $this->cleanApiResponse($apiResponse);
-                        
-                        $updateData = [
-                            'comment' => $cleanResponse,
-                        ];
-
-                        if (isset($apiResponse['status'])) {
-                            $updateData['status'] = $this->normalizeStatus($apiResponse['status']);
-                        } elseif (isset($apiResponse['response'])) {
-                            $updateData['status'] = $this->normalizeStatus($apiResponse['response']);
-                        }
-
-                        $isFailingNow = isset($updateData['status']) && $updateData['status'] === 'failed' && $submission->status !== 'failed';
-
-                        if ($isFailingNow) {
-                            DB::beginTransaction();
-                            try {
-                                $submission->update($updateData);
-
-                                $wallet = Wallet::where('user_id', $submission->user_id)->lockForUpdate()->first();
-                                if ($wallet) {
-                                    $wallet->increment('balance', $submission->amount);
-
-                                    Transaction::create([
-                                        'transaction_ref' => 'REF_' . $submission->reference,
-                                        'user_id'         => $submission->user_id,
-                                        'amount'          => $submission->amount,
-                                        'performed_by'    => 'System Auto-Refund',
-                                        'description'     => "Refund for failed NIN Validation",
-                                        'type'            => 'credit',
-                                        'status'          => 'completed',
-                                        'metadata'        => [
-                                            'original_reference' => $submission->reference,
-                                            'api_reason'         => $updateData['comment'] ?? 'Failed submission',
-                                        ],
-                                    ]);
-                                }
-
-                                DB::commit();
-                            } catch (\Exception $e) {
-                                DB::rollBack();
-                                Log::error('NIN Validation Auto Refund Error in Batch', ['error' => $e->getMessage(), 'submission_id' => $submission->id]);
-                            }
-                        } else {
-                            $submission->update($updateData);
-                        }
-                        $checked++;
-                    }
-                } catch (\Exception $e) {
-                    Log::error('Batch check error for NIN Validation ' . $submission->id . ': ' . $e->getMessage());
-                    continue;
-                }
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => "Batch check completed. Checked {$checked} submissions.",
-                'checked' => $checked
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Batch Check Error (NIN Validation): ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Batch check failed: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 
     public function webhook(Request $request)
     {

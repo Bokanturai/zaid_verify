@@ -1,7 +1,7 @@
 <x-app-layout>
- <title>Digital Verify - {{ $title ?? 'Wallet Funding' }}</title>
+ <title>Zaidi Verify - {{ $title ?? 'Wallet Funding' }}</title>
 
-    <div class="container-fluid py-4 px-md-4">
+    <div class="container-fluid py-4 px-0 px-md-4">
         <!-- Page Header -->
         <div class="mb-4">
             <h1 class="h3 fw-bold text-gray-800 mb-1">Wallet Section</h1>
@@ -25,10 +25,10 @@
             </div>
         @endif
 
-        <div class="row g-4">
+        <div class="row g-0 g-md-4">
             <!-- Automatic Funding Section -->
             <div class="col-xl-6 col-lg-12">
-                <div class="card border-0 shadow-sm h-100 rounded-4 p-4">
+                <div class="card border-0 shadow-sm h-100 rounded-0 rounded-md-4 p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="fw-bold mb-0"><i class="fas fa-university me-2 text-primary"></i>Automatic Funding</h5>
                         @if($virtualAccounts->isNotEmpty())
@@ -99,8 +99,8 @@
             </div>
 
             <!-- Funding Guidelines -->
-            <div class="col-xl-6 col-lg-12">
-                <div class="card border-0 shadow-sm h-100 rounded-4 p-4">
+            <div class="col-12 col-xl-6 col-lg-12 mt-2 mt-md-0">
+                <div class="card border-0 shadow-sm h-100 rounded-0 rounded-md-4 p-4">
                     <h5 class="fw-bold mb-4"><i class="fas fa-shield-halved me-2 text-primary"></i>Funding Guidelines</h5>
                     
                     <div class="d-flex flex-column gap-4">

@@ -2,8 +2,8 @@
 <!-- Force Profile Modal -->
 <div class="modal fade" id="forceProfileModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
 	<div class="modal-dialog modal-dialog-centered modal-lg">
-		<div class="modal-content shadow-lg border-0 rounded-3">
-			<div class="modal-header bg-primary text-white">
+		<div class="modal-content shadow-lg border-0 rounded-0 rounded-md-4">
+			<div class="modal-header bg-primary text-white rounded-0 rounded-top-md-4">
 				<h5 class="modal-title text-white"><i class="fas fa-user-check me-2"></i>Complete Your Profile</h5>
 			</div>
 			<div class="modal-body p-4">
@@ -21,7 +21,7 @@
 					@csrf
 					
 					<!-- Personal Information Section -->
-					<div class="card border-0 shadow-sm mb-4">
+					<div class="card border-0 shadow-sm rounded-0 rounded-md-4 mb-4">
 						<div class="card-body">
 							<h6 class="text-primary mb-3 d-flex align-items-center">
 								<i class="fas fa-user-circle me-2"></i>Personal Details<span class="text-danger">*</span>
@@ -77,7 +77,7 @@
 					</div>
 
 					<!-- Address Section -->
-					<div class="card border-0 shadow-sm mb-4">
+					<div class="card border-0 shadow-sm rounded-0 rounded-md-4 mb-4">
 						<div class="card-body">
 							<h6 class="text-primary mb-3 d-flex align-items-center">
 								<i class="fas fa-map-marker-alt me-2"></i>Address Information
@@ -154,7 +154,7 @@
 					</div>
 
 					<!-- Verification Section -->
-					<div class="card border-0 shadow-sm mb-4">
+					<div class="card border-0 shadow-sm rounded-0 rounded-md-4 mb-4">
 						<div class="card-body">
 							<h6 class="text-primary mb-3 d-flex align-items-center">
 								<i class="fas fa-shield-alt me-2"></i>Verification Details<span class="text-danger">*</span>
@@ -174,7 +174,7 @@
 					</div>
 
 					<!-- Transaction Pin -->
-					<div class="card border-0 shadow-sm mb-4">
+					<div class="card border-0 shadow-sm rounded-0 rounded-md-4 mb-4">
 						<div class="card-body">
 							<h6 class="text-primary mb-3 d-flex align-items-center">
 								<i class="fas fa-key me-2"></i>Transaction PIN<span class="text-danger">*</span>

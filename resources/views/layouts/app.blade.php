@@ -10,7 +10,7 @@
     <meta name="author" content="Dreams Technologies">
     <meta name="robots" content="index, follow">
 
-    <title>Zaidi Verify - {{ $title ?? 'dashboard and services' }}</title>
+  
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('assets/img/logo/logo.png') }}" type="image/x-icon" />
@@ -18,6 +18,8 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Feather CSS -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/icons/feather/feather.css') }}">
     <!-- Tabler Icons -->
@@ -65,8 +67,8 @@
 
             <!-- ===== Footer Start ===== -->
             <footer class="footer bg-primary text-light py-3 mt-auto">
-                <div class="container-fluid">
-                    <div class="row align-items-center justify-content-between">
+                <div class="container-fluid px-0 px-md-3">
+                    <div class="row g-0 g-md-4 align-items-center justify-content-between">
                         <!-- Left Side: Copyright -->
                         <div class="col-md-5 text-center text-md-start mb-2 mb-md-0">
                             <p class="mb-0 small">

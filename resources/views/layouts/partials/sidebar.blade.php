@@ -64,7 +64,9 @@
                         <li><a href="{{ route('bvn-crm') }}"
                                 class="{{ request()->routeIs('bvn-crm') ? 'active' : '' }}">CRM</a></li>
                         <li><a href="{{ route('phone.search.index') }}"
-                                class="{{ request()->routeIs('phone.search.index') ? 'active' : '' }}">BVN Search</a>
+                                class="{{ request()->routeIs('phone.search.index') ? 'active' : '' }}">BVN Search</a></li>
+                        <li><a href="{{ route('bvn-user.index') }}"
+                                class="{{ request()->routeIs('bvn-user.index') ? 'active' : '' }}">BVN Users</a>
                         </li>
                     </ul>
                 </li>
@@ -84,6 +86,9 @@
                                 class="{{ request()->routeIs('nin-validation') ? 'active' : '' }}">Validation</a></li>
                         <li><a href="{{ route('ipe.index') }}"
                                 class="{{ request()->routeIs('ipe.index') ? 'active' : '' }}">IPE</a></li>
+                        <li><a href="{{ route('nin-personalisation.index') }}"
+                                class="{{ request()->routeIs('nin-personalisation.index') ? 'active' : '' }}">Personalisation</a></li>
+
                     </ul>
                 </li>
 
@@ -137,6 +142,8 @@
                             </li>
                             <li><a href="{{ route('wallet.transfer') }}"
                                     class="{{ request()->routeIs('wallet.transfer') ? 'active' : '' }}">Balance Transfer</a>
+                            <li><a href="{{ route('admin.wallet.summary') }}"
+                                    class="{{ request()->routeIs('admin.wallet.summary') ? 'active' : '' }}">System Summary</a>
                             </li>
                         </ul>
                     </li>
@@ -197,6 +204,8 @@
                                     class="{{ request()->routeIs('admin.crm.*') ? 'active' : '' }}">CRM</a></li>
                             <li><a href="{{ route('admin.bvn-search.index') }}"
                                     class="{{ request()->routeIs('admin.bvn-search.*') ? 'active' : '' }}">P/N Search</a>
+                            <li><a href="{{ route('admin.bvn-user.index') }}"
+                                    class="{{ request()->routeIs('admin.bvn-user.*') ? 'active' : '' }}">BVN Users</a>
                             </li>
                         </ul>
                     </li>

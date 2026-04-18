@@ -8,7 +8,7 @@
         style="position: absolute; bottom: 0; left: 0; width: 400px; height: 400px; background: radial-gradient(circle, rgba(15, 23, 42, 0.05) 0%, rgba(255,255,255,0) 70%);">
     </div>
 
-    <div class="container">
+    <div class="container px-0 px-md-3">
         <div class="section-title text-center mb-5" data-aos="fade-up">
             <h4 style="color: #FF13F0; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;">What We Do
             </h4>
@@ -19,10 +19,10 @@
             </p>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-0 g-md-4">
             <!-- Service 1: NIN Services -->
             <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="service-card-premium">
+                <div class="service-card-premium rounded-0 rounded-md-4">
                     <div class="icon-wrapper">
                         <i class="fas fa-id-card"></i>
                     </div>
@@ -98,7 +98,7 @@
         .service-card-premium {
             background: #fff;
             padding: 40px 30px;
-            border-radius: 20px;
+            /* border-radius: 20px; handled by bootstrap classes */
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             transition: all 0.4s ease;
             height: 100%;
@@ -118,7 +118,7 @@
             background: linear-gradient(135deg, #FF13F0 0%, #D600C7 100%);
             transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             z-index: -1;
-            border-radius: 20px;
+            /* border-radius: 20px; handled by bootstrap classes */
         }
 
         .service-card-premium:hover {

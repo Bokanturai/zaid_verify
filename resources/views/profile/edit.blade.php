@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="title">{{ $title ?? 'Profile Settings' }}</x-slot>
 
-    <div class="container-fluid py-4">
+    <div class="container-fluid py-4 px-0 px-md-3">
         
         <!-- Alerts with Animation -->
         @if (session('status') || session('error') || $errors->any())
@@ -35,11 +35,11 @@
             </div>
         @endif
 
-        <div class="row g-4">
+        <div class="row g-0 g-md-4">
 
             <!-- LEFT COLUMN: Profile Overview -->
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 glass-card">
+            <div class="col-12 col-lg-4">
+                <div class="card border-0 shadow-lg rounded-0 rounded-md-4 overflow-hidden h-100 glass-card">
                     <!-- Glassmorphism Background -->
                     <div class="card-header position-relative border-0" style="height: 140px; background: linear-gradient(135deg, #032f35, #10dfe6); overflow: hidden;">
                         <div class="position-absolute w-100 h-100 top-0 start-0" style="background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1;"></div>
@@ -112,8 +112,8 @@
             </div>
 
             <!-- RIGHT COLUMN: User Details & Settings -->
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 glass-card">
+            <div class="col-12 col-lg-8 mt-3 mt-md-0">
+                <div class="card border-0 shadow-lg rounded-0 rounded-md-4 overflow-hidden h-100 glass-card">
                     <div class="card-header bg-white border-0 py-4 px-4 d-flex align-items-center justify-content-between">
                         <h4 class="mb-0 text-dark"><i class="ti ti-user-circle me-2 text-primary"></i>Identity Details</h4>
                         <nav aria-label="breadcrumb">

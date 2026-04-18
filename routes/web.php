@@ -35,7 +35,9 @@ use App\Http\Controllers\Agency\NinValidationController;
 use App\Http\Controllers\Agency\NinModificationController;
 use App\Http\Controllers\Agency\IpeController;
 use App\Http\Controllers\Agency\BvncrmController;
+use App\Http\Controllers\Agency\BvnUserController;
 use App\Http\Controllers\Agency\LicenseController;
+use App\Http\Controllers\Agency\NinPersonalisationController as AgencyNinPersonalisationController;
 
 // Admin Management Controllers
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -56,6 +58,8 @@ use App\Http\Controllers\Admin\Agency\NinIpeController;
 use App\Http\Controllers\Admin\Agency\NinPersonalisationController;
 use App\Http\Controllers\Admin\Agency\ValidationController;
 use App\Http\Controllers\Admin\Agency\VninToNibssController;
+use App\Http\Controllers\Admin\Agency\BvnUserController as AdminBvnUserController;
+use App\Http\Controllers\Admin\WalletSummaryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -220,7 +224,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [NinValidationController::class, 'index'])->name('nin-validation');
         Route::post('/', [NinValidationController::class, 'store'])->name('nin-validation.store');
         Route::get('/check/{id}', [NinValidationController::class, 'checkStatus'])->name('nin-validation.check');
-        Route::post('/batch-check', [NinValidationController::class, 'batchCheck'])->name('nin-validation.batch-check');
     });
 
     Route::prefix('ipe')->group(function () {
@@ -234,6 +237,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/bvn-crm', [BvncrmController::class, 'store'])->name('crm.store');
     Route::get('/bvn-crm/check/{id}', [BvncrmController::class, 'checkStatus'])->name('crm.check');
     Route::post('/bvn-crm/batch-check', [BvncrmController::class, 'batchCheck'])->name('crm.batch-check');
+
+    Route::prefix('nin-personalisation')->group(function () {
+        Route::get('/', [AgencyNinPersonalisationController::class, 'index'])->name('nin-personalisation.index');
+        Route::post('/store', [AgencyNinPersonalisationController::class, 'store'])->name('nin-personalisation.store');
+    });
+
+    Route::prefix('bvn-user')->group(function () {
+        Route::get('/', [BvnUserController::class, 'index'])->name('bvn-user.index');
+        Route::post('/store', [BvnUserController::class, 'store'])->name('bvn-user.store');
+    });
 
     Route::get('/send-vnin', [BvnServicesController::class, 'index'])->name('send-vnin');
     Route::post('/send-vnin', [BvnServicesController::class, 'store'])->name('send-vnin.store');
@@ -285,6 +298,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('wallet/fund', [AdminWalletController::class, 'fund'])->name('wallet.fund');
         Route::get('wallet/bulk-fund', [AdminWalletController::class, 'bulkFundView'])->name('wallet.bulk-fund.view');
         Route::post('wallet/bulk-fund', [AdminWalletController::class, 'bulkFund'])->name('wallet.bulk-fund');
+        Route::get('wallet/summary', [WalletSummaryController::class, 'index'])->name('wallet.summary');
 
         // Services & Data Management
         Route::resource('services', ServiceController::class);
@@ -371,6 +385,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/{id}', [ValidationController::class, 'show'])->name('show');
                 Route::post('/{id}/update', [ValidationController::class, 'update'])->name('update');
                 Route::get('/check/{id}', [ValidationController::class, 'checkStatus'])->name('check');
+            });
+
+            // BVN User
+            Route::prefix('bvn-user')->name('bvn-user.')->group(function () {
+                Route::get('/', [AdminBvnUserController::class, 'index'])->name('index');
+                Route::get('/{id}', [AdminBvnUserController::class, 'show'])->name('show');
+                Route::post('/{id}/update', [AdminBvnUserController::class, 'update'])->name('update');
             });
 
             // VNIN to NIBSS

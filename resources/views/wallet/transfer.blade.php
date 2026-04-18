@@ -1,7 +1,7 @@
 <x-app-layout>
-    <title>Digital Verify - P2P Balance Transfer</title>
+    <title>Zaidi Verify - P2P Balance Transfer</title>
 
-    <div class="container-fluid py-4 px-md-4">
+    <div class="container-fluid py-4 px-0 px-md-4">
         <!-- Page Header -->
         <div class="mb-4">
             <h1 class="h3 fw-bold text-gray-800 mb-1">P2P Transfer</h1>
@@ -9,7 +9,7 @@
         </div>
 
         @if(session('success') || session('error'))
-            <div class="row mb-4">
+            <div class="row g-0 g-md-4 mb-4">
                 <div class="col-12 col-lg-8">
                     @if(session('success'))
                         <div class="alert alert-success border-0 shadow-sm rounded-4">
@@ -25,10 +25,10 @@
             </div>
         @endif
 
-        <div class="row g-4">
+        <div class="row g-0 g-md-4">
             <!-- Transfer Form -->
-            <div class="col-xl-8 col-lg-12">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="col-12 col-xl-8 col-lg-12">
+                <div class="card border-0 shadow-sm rounded-0 rounded-md-4 overflow-hidden">
                     <div class="card-header bg-white border-0 py-3">
                         <h5 class="fw-bold mb-0 text-primary">
                             <i class="fas fa-paper-plane me-2"></i>Transfer Details
@@ -97,8 +97,8 @@
             </div>
 
             <!-- Balance Sidebar -->
-            <div class="col-xl-4 col-lg-12">
-                <div class="card border-0 shadow-sm rounded-4 p-4 text-white text-center h-100" 
+            <div class="col-12 col-xl-4 col-lg-12 mt-2 mt-md-0">
+                <div class="card border-0 shadow-sm rounded-0 rounded-md-4 p-4 text-white text-center h-100" 
                      style="background: linear-gradient(135deg, #0d5c3e 0%, #0a4a31 100%);">
                     <div class="mb-3">
                         <i class="fas fa-wallet fa-3x text-warning opacity-75"></i>

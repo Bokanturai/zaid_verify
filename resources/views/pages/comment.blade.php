@@ -6,7 +6,7 @@
             <!-- Modal Header -->
             <div class="modal-header bg-primary text-white py-3 px-4">
                 <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-chat-left-text fs-4"></i>
+                    <i class="bi bi-chat-left-text fs-20"></i>
                     <h5 class="modal-title text-white mb-0 fw-semibold" id="commentModalLabel">Request Response</h5>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -23,16 +23,7 @@
             <!-- Modal Footer -->
             <div class="modal-footer bg-white border-top d-flex justify-content-between align-items-center py-2 px-4">
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                        <i class="bi bi-file-earmark-text me-1"></i> BVN Report
-                    </a>
-                    <a href="#" class="btn btn-sm btn-outline-warning rounded-pill px-3">
-                        <i class="bi bi-award me-1"></i> VIP Access
-                    </a>
-                    <a href="#" class="btn btn-sm btn-outline-info rounded-pill px-3">
-                        <i class="bi bi-question-circle me-1"></i> Complain
-                    </a>
-                    <a href="#" id="downloadBtn" class="btn btn-sm btn-success rounded-pill px-3 d-none" target="_blank" download>
+                    <a href="javascript:void(0);" id="downloadBtn" class="btn btn-sm btn-success rounded-pill px-3 d-none" target="_blank" download>
                         <i class="bi bi-download me-1"></i> Download File
                     </a>
                 </div>

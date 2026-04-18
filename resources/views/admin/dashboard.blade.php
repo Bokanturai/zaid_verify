@@ -4,7 +4,7 @@
     <!-- Announcement Banner -->
     @if(isset($announcement) && $announcement)
         <div class="notification-container mt-3 mb-2">
-            <div class="scrolling-text-container bg-primary text-white shadow-sm rounded-3 py-2">
+            <div class="scrolling-text-container bg-primary text-white shadow-sm rounded-4 py-2">
                 <div class="scrolling-text">
                     <span class="fw-bold me-3"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT:</span>
                     {{ $announcement->message }}
@@ -15,7 +15,7 @@
 
     <div class="mt-4">
         <!-- User + Wallet Section -->
-        <div class="card border-0 shadow-sm rounded-4 mb-3">
+        <div class="card border-0 shadow-sm rounded-0 rounded-md-4 mb-3">
             <div class="card-body user-wallet-wrap">
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     <!-- User Image -->
@@ -64,7 +64,7 @@
         <div class="row g-4 mb-4">
             <!-- Total Wallet Balance -->
             <div class="col-xl-3 col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 stat-card card-gradient-primary">
+                <div class="card border-0 shadow-sm rounded-0 rounded-md-4 stat-card card-gradient-primary">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -81,7 +81,7 @@
 
             <!-- Today's Credit -->
             <div class="col-xl-3 col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 stat-card card-gradient-success">
+                <div class="card border-0 shadow-sm rounded-0 rounded-md-4 stat-card card-gradient-success">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -98,7 +98,7 @@
 
             <!-- Today's Debit -->
             <div class="col-xl-3 col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 stat-card card-gradient-warning">
+                <div class="card border-0 shadow-sm rounded-0 rounded-md-4 stat-card card-gradient-warning">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -115,7 +115,7 @@
 
             <!-- Total Users -->
             <div class="col-xl-3 col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 stat-card card-gradient-info">
+                <div class="card border-0 shadow-sm rounded-0 rounded-md-4 stat-card card-gradient-info">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -137,7 +137,7 @@
         <div class="row g-4">
             <!-- Recent Transactions -->
             <div class="col-xxl-8 col-xl-7 d-flex">
-                <div class="card flex-fill border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card flex-fill border-0 shadow-sm rounded-0 rounded-md-4 overflow-hidden">
                     <div
                         class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap border-bottom-0">
                         <h5 class="mb-0 fw-bold text-dark">
@@ -232,7 +232,7 @@
 
             <!-- Transaction Statistics -->
             <div class="col-xxl-4 col-xl-5 d-none d-xl-flex">
-                <div class="card flex-fill border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card flex-fill border-0 shadow-sm rounded-0 rounded-md-4 overflow-hidden">
                     <div class="card-header bg-white py-3 border-bottom-0">
                         <h5 class="mb-0 fw-bold text-dark">Today's Statistics</h5>
                     </div>

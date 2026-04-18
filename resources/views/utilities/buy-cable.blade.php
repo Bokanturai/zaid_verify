@@ -1,5 +1,5 @@
 <x-app-layout>
-    <title>Digital Verify - Pay Cable TV</title>
+    <title>Zaidi Verify - Pay Cable TV</title>
 
     <div class="row">
         <div class="col-xxl-12 col-xl-12">

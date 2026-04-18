@@ -36,7 +36,7 @@
 
     <!-- Header -->
     <header>
-        <div class="container header-container">
+        <div class="container-fluid header-container px-0 px-md-3">
             <a href="#" class="logo">
                 <img src="{{ asset('assets/img/logo/logo.png') }}" alt="Zaidi Verify"
                     style="height: 50px; margin-right: 10px;">
@@ -61,7 +61,7 @@
     <section class="hero" id="home"
         style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(255, 19, 240, 0.3)), 
              url('{{ asset('assets/images/logo/hero.png') }}') no-repeat center center/cover; min-height: 100vh; display: flex; align-items: center;">
-        <div class="container hero-content text-center">
+        <div class="container hero-content text-center px-0 px-md-3">
             <h1 class="mb-4" data-aos="fade-down" data-aos-duration="1000"
                 style="font-size: 4rem; font-weight: 800; color: #FF13F0; text-shadow: 0 4px 15px rgba(255, 19, 240, 0.3);">
                 Agency and Verification Services for Your Business
@@ -96,7 +96,7 @@
         </div>
 
 
-        <div class="container" style="position: relative; z-index: 2;">
+        <div class="container px-0 px-md-3" style="position: relative; z-index: 2;">
             <div class="section-title text-center mb-5" data-aos="fade-up">
                 <h4
                     style="color: #FF13F0; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; font-size: 0.9rem;">
@@ -106,7 +106,7 @@
                 <hr
                     style="width: 80px; height: 4px; background: #FF13F0; margin: 20px auto; border: none; border-radius: 2px;">
                 <p class="text-muted" style="max-width: 650px; margin: 0 auto; font-size: 1.15rem;">
-                    See what our partners and clients have to say about their experience working with Digital Verify.
+                    See what our partners and clients have to say about their experience working with Zaidi Verify.
                 </p>
             </div>
 
@@ -186,7 +186,7 @@
             style="position: absolute; top: 0; right: 0; width: 400px; height: 400px; background: radial-gradient(circle, rgba(136, 92, 10, 0.1) 0%, rgba(0,0,0,0) 70%);">
         </div>
 
-        <div class="container" style="position: relative; z-index: 2;">
+        <div class="container px-0 px-md-3" style="position: relative; z-index: 2;">
             <div class="row g-5">
                 <!-- Company Info -->
                 <div class="col-lg-4 col-md-6">
@@ -273,7 +273,7 @@
     </footer>
 
     <!-- Privacy Banner (Footer) -->
-    <div class="privacy-banner" id="privacyBanner">
+    <div class="privacy-banner rounded-0 rounded-md-4" id="privacyBanner">
         <div class="banner-content">
             <div class="d-flex align-items-center mb-3 mb-md-0">
                 <i class="fas fa-shield-alt privacy-icon"></i>

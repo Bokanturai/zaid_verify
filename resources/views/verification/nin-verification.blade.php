@@ -1,9 +1,9 @@
 <x-app-layout>
-    <title>Digital Verify - {{ $title ?? 'Verify NIN' }}</title>
+    <title>Zaidi Verify - {{ $title ?? 'Verify NIN' }}</title>
     <div class="page-body">
-        <div class="container-fluid">
+        <div class="container-fluid px-0 px-md-3">
             <div class="page-title mb-3">
-                <div class="row">
+                <div class="row g-0 g-md-4">
                     <div class="col-sm-6 col-12">
                         <h3 class="fw-bold text-primary">NIN Verification</h3>
                         <p class="text-muted small mb-0">Verify NIN instantly and download slips.</p>
@@ -12,12 +12,12 @@
             </div>
         </div>
 
-        <div class="container-fluid">
-            <div class="row mt-3">
+        <div class="container-fluid px-0 px-md-3">
+            <div class="row g-0 g-md-4 mt-3">
                 <!-- NIN Verification Form -->
-                <div class="col-xl-6 mb-4">
-                    <div class="card shadow-sm border-0 rounded-3">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div class="col-12 col-xl-6 mb-4">
+                    <div class="card shadow-sm border-0 rounded-0 rounded-md-4">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-0 rounded-top-md-4">
                             <h5 class="mb-0 fw-bold"><i class="bi bi-shield-check me-2"></i>Verify NIN</h5>
                             <span class="badge bg-light text-primary fw-semibold">Instant</span>
                         </div>
@@ -82,9 +82,9 @@
                 </div>
 
                 <!-- Verification Info -->
-                <div class="col-xl-6">
-                    <div class="card shadow-sm border-0 rounded-3">
-                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <div class="col-12 col-xl-6 mt-2 mt-md-0">
+                    <div class="card shadow-sm border-0 rounded-0 rounded-md-4">
+                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center rounded-0 rounded-top-md-4">
                             <h5 class="mb-0 fw-bold"><i class="bi bi-person-lines-fill me-2"></i>Verification Result</h5>
                         </div>
 
@@ -186,8 +186,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
     <!-- Slip Download Script -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -1,10 +1,10 @@
 <x-app-layout>
-    <title>Digital Verify - {{ $title ?? 'Dashboard' }}</title>
+    <title>Zaidi Verify - {{ $title ?? 'Dashboard' }}</title>
 
     <!-- Announcement Banner -->
     @if(isset($announcement) && $announcement)
     <div class="notification-container mt-3 mb-2">
-        <div class="scrolling-text-container bg-primary text-white shadow-sm rounded-3 py-2">
+        <div class="scrolling-text-container bg-primary text-white shadow-sm rounded-4 py-2">
             <div class="scrolling-text">
                 <span class="fw-bold me-3"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT:</span>
                 {{ $announcement->message }}
@@ -15,7 +15,7 @@
 
     <div class="mt-4">
         <!-- User + Wallet Section -->
-        <div class="card border-0 shadow-sm rounded-4 mb-3">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
             <div class="card-body user-wallet-wrap">
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     <!-- User Image -->
@@ -30,7 +30,7 @@
                         <h4 class="fw-semibold text-dark mb-1 welcome-text">
                             Welcome back, {{ Auth::user()->first_name . ' ' . Auth::user()->surname ?? 'User' }} 👋
                         </h4>
-                        <small class="text-success">Account ID: {{ $virtualAccount->accountNo ?? 'N/A' }} {{ $virtualAccount->bankName ?? 'N/A' }}</small>
+                        <small class="text-success">Account ID: {{ $virtualAccount->accountNo ?? 'N/A' }} Moniepoint</small>
                     </div>
 
                     <!-- Wallet Info -->
@@ -60,7 +60,7 @@
         @include('pages.alart')
 
         <!-- Statistics Cards -->
-        <div class="row g-4 mb-4 d-none d-md-flex">
+        <div class="row g-0 g-md-4 mb-4 d-none d-md-flex">
             <!-- Total Spent -->
             <div class="col-xl-3 col-lg-6">
                 <div class="card border-0 shadow-sm rounded-4 h-100">
@@ -132,8 +132,8 @@
 
         <!-- Quick Services Section -->
         <section class="py-3 py-md-4">
-            <div class="container px-0 px-sm-3">
-                <div class="card border-0 shadow-sm mobile-flush rounded-4 overflow-hidden">
+            <div class="container px-0 px-md-3">
+                <div class="card border-0 shadow-sm mobile-flush rounded-0 rounded-md-4 overflow-hidden">
                     <div class="card-body p-3 p-md-4">
                         <div class="d-flex align-items-center gap-2 mb-1">
                             <i class="fas fa-bolt text-warning"></i>
@@ -159,12 +159,14 @@
                                 ['route' => route('ipe.index'), 'icon' => 'ti-clear-formatting', 'color' => 'info', 'name' => 'IPE'],
                                 ['modal' => '#verifyModal', 'icon' => 'ti-id-badge', 'color' => 'info', 'name' => 'Verify NIN'],
                                 ['modal' => '#verifyBVNModal', 'icon' => 'ti-shield-check', 'color' => 'secondary', 'name' => 'Verify BVN'],
-                                ['route' => route('license.index'), 'icon' => 'ti-id', 'color' => 'info', 'name' => 'License Reg'],
+                                ['route' => route('license.index'), 'icon' => 'ti-id', 'color' => 'info', 'name' => 'CAC Reg'],
+                                ['route' => route('bvn-user.index'), 'icon' => 'ti-checkbox', 'color' => 'warning', 'name' => 'BVN User'],
+                                ['route' => route('nin-personalisation.index'), 'icon' => 'ti-checkbox', 'color' => 'success', 'name' => 'Personalisation'],
                                 ['route' => route('support'), 'icon' => 'ti-message-plus', 'color' => 'primary', 'name' => 'Support', 'hot' => true],
                             ];
                         @endphp
 
-                        <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-2 g-md-3 text-center">
+                        <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-0 g-md-3 text-center">
                             @foreach ($services as $sv)
                                 <div class="col">
                                     <a 
@@ -195,10 +197,10 @@
         </section>
 
         <!-- Transactions & Statistics Row -->
-        <div class="row g-4">
+        <div class="row g-0 g-md-4">
             <!-- Recent Transactions -->
             <div class="col-xxl-8 col-xl-7 d-flex">
-                <div class="card flex-fill border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card flex-fill border-0 shadow-sm rounded-0 rounded-md-4 overflow-hidden">
                     <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap border-bottom-0">
                         <h5 class="mb-0 fw-bold text-dark">Recent Transactions</h5>
                         <a href="{{ route('transactions') }}" class="btn btn-sm btn-light text-primary fw-medium">View All</a>
@@ -273,7 +275,7 @@
 
             <!-- Transaction Statistics -->
             <div class="col-xxl-4 col-xl-5 d-none d-xl-flex">
-                <div class="card flex-fill border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card flex-fill border-0 shadow-sm rounded-0 rounded-md-4 overflow-hidden">
                     <div class="card-header bg-white py-3 border-bottom-0">
                         <h5 class="mb-0 fw-bold text-dark">Transaction Statistics</h5>
                     </div>

@@ -126,17 +126,22 @@ class NinPersonalisationController extends Controller
             // Handle file upload
             $fileUrl = $enrollment->file_url;
             if ($request->hasFile('file')) {
-                // Delete old file if exists
-                if ($fileUrl && Storage::disk('public')->exists($fileUrl)) {
-                    Storage::disk('public')->delete($fileUrl);
+                // Delete old file if exists (with backward compatibility for full URLs)
+                if ($fileUrl) {
+                    $oldPath = $fileUrl;
+                    if (str_contains($oldPath, '/storage/')) {
+                        $oldPath = explode('/storage/', $oldPath)[1];
+                    }
+                    if (Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
                 }
 
                 // Store new file
                 $file = $request->file('file');
                 $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('nin_personalization-files', $fileName, 'public');
-                $baseUrl = rtrim(config('app.url'), '/');
-                $fileUrl = $baseUrl . '/storage/nin_personalization-files/' . $fileName;
+                $fileUrl = $filePath; // Store relative path
             }
 
             // Update enrollment

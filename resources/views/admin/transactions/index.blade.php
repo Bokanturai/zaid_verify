@@ -5,7 +5,7 @@
         <!-- Stats Cards -->
         <div class="row g-3 mb-4">
             <div class="col-xl-3 col-md-6 fade-in-up" style="animation-delay: 0.1s;">
-                <div class="financial-card shadow-sm h-100 p-4" style="background: var(--primary-gradient);">
+                <div class="financial-card shadow-sm h-100 p-4 rounded-0 rounded-md-4" style="background: var(--primary-gradient);">
                     <div class="d-flex justify-content-between align-items-start position-relative z-1">
                         <div>
                             <p class="stats-label mb-1" style="color: white;">Total Transactions</p>
@@ -20,7 +20,7 @@
             </div>
 
             <div class="col-xl-3 col-md-6 fade-in-up" style="animation-delay: 0.2s;">
-                <div class="financial-card shadow-sm h-100 p-4" style="background: var(--success-gradient);">
+                <div class="financial-card shadow-sm h-100 p-4 rounded-0 rounded-md-4" style="background: var(--success-gradient);">
                     <div class="d-flex justify-content-between align-items-start position-relative z-1">
                         <div>
                             <p class="stats-label mb-1" style="color: white;">Total Credits</p>
@@ -35,7 +35,7 @@
             </div>
 
             <div class="col-xl-3 col-md-6 fade-in-up" style="animation-delay: 0.3s;">
-                <div class="financial-card shadow-sm h-100 p-4" style="background: var(--danger-gradient);">
+                <div class="financial-card shadow-sm h-100 p-4 rounded-0 rounded-md-4" style="background: var(--danger-gradient);">
                     <div class="d-flex justify-content-between align-items-start position-relative z-1">
                         <div>
                             <p class="stats-label mb-1" style="color: white;">Total Debits</p>
@@ -50,7 +50,7 @@
             </div>
 
             <div class="col-xl-3 col-md-6 fade-in-up" style="animation-delay: 0.4s;">
-                <div class="financial-card shadow-sm h-100 p-4" style="background: var(--info-gradient);">
+                <div class="financial-card shadow-sm h-100 p-4 rounded-0 rounded-md-4" style="background: var(--info-gradient);">
                     <div class="d-flex justify-content-between align-items-start position-relative z-1">
                         <div>
                             <p class="stats-label mb-1" style="color: white;">Success Rate</p>
@@ -78,7 +78,7 @@
                 position: relative;
                 overflow: hidden;
                 border: none;
-                border-radius: 1rem;
+                /* border-radius: 1rem; handled by bootstrap classes */
                 color: white;
             }
 
@@ -166,7 +166,7 @@
         <!-- Filter Section -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm rounded-0 rounded-md-4">
                     <div class="card-body p-3">
                         <form action="{{ route('transactions') }}" method="GET">
                             <div class="row g-3 align-items-center">
@@ -228,9 +228,9 @@
         <!-- Transactions Table Card -->
         <div class="row">
             <div class="col-xl-12">
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm rounded-0 rounded-md-4">
                     <div
-                        class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center rounded-0 rounded-top-md-4">
                         <h5 class="card-title mb-0 fw-bold">Recent Transactions</h5>
                         <div>
                             <span class="badge bg-light text-dark border me-2">Displaying:
@@ -362,8 +362,8 @@
     @foreach ($transactions as $transaction)
         <div class="modal fade" id="txModal{{ $transaction->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-primary text-white">
+                <div class="modal-content border-0 shadow-lg rounded-0 rounded-md-4">
+                    <div class="modal-header bg-primary text-white rounded-0 rounded-top-md-4">
                         <h5 class="modal-title fw-bold text-white"><i class="ti ti-info-circle me-2"></i>Transaction Details
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
