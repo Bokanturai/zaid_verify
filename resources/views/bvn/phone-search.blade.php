@@ -130,9 +130,9 @@
                 <!-- Submission History -->
                 <div class="col-xl-6">
                     <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                        <div class="card-header bg-white border-bottom py-3">
-                            <h5 class="fw-bold mb-0 text-dark">
-                                <i class="bi bi-clock-history me-2 text-primary"></i> Submission History
+                        <div class="card-header bg-primary text-white py-3 d-flex align-items-center justify-content-between">
+                            <h5 class="fw-bold mb-0 text-white">
+                                <i class="bi bi-clock-history me-2"></i> Submission History
                             </h5>
                         </div>
 

@@ -18,8 +18,8 @@
                 {{-- Request Form Column --}}
                 <div class="col-xl-5 mb-4">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                        <div class="card-header bg-white py-3 border-bottom-0">
-                            <h5 class="mb-0 fw-bold text-primary"><i class="ti ti-shield-check me-2"></i>New Validation</h5>
+                        <div class="card-header bg-primary py-3 mb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="ti ti-shield-check me-2"></i>New Validation</h5>
                         </div>
 
                         <div class="card-body p-4">
@@ -107,11 +107,10 @@
                 {{-- Submission History Column --}}
                 <div class="col-xl-7">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                        <div class="card-header bg-white py-3 border-bottom-0 d-flex align-items-center justify-content-between">
-                            <h5 class="fw-bold mb-0 text-dark">
-                                <i class="ti ti-history me-2 text-primary"></i> Request History
+                        <div class="card-header bg-primary py-3 mb-0 d-flex align-items-center justify-content-between">
+                            <h5 class="fw-bold mb-0 text-white">
+                                <i class="ti ti-history me-2"></i> Request History
                             </h5>
-
                         </div>
 
                         <div class="card-body p-0">

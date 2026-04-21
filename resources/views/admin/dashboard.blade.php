@@ -1,5 +1,5 @@
 <x-app-layout>
-    <title>Safana Digital - {{ $title ?? 'Dashboard' }}</title>
+    <title>Zaid Verify - {{ $title ?? 'Dashboard' }}</title>
 
     <!-- Announcement Banner -->
     @if(isset($announcement) && $announcement)

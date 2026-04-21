@@ -60,6 +60,7 @@ use App\Http\Controllers\Admin\Agency\ValidationController;
 use App\Http\Controllers\Admin\Agency\VninToNibssController;
 use App\Http\Controllers\Admin\Agency\BvnUserController as AdminBvnUserController;
 use App\Http\Controllers\Admin\WalletSummaryController;
+use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -217,7 +218,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [NinModificationController::class, 'index'])->name('nin-modification');
         Route::post('/', [NinModificationController::class, 'store'])->name('nin-modification.store');
         Route::get('/check/{id}', [NinModificationController::class, 'checkStatus'])->name('nin-modification.check');
-        Route::post('/batch-check', [NinModificationController::class, 'batchCheck'])->name('nin-modification.batch-check');
+
     });
 
     Route::prefix('nin-validation')->group(function () {
@@ -230,13 +231,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [IpeController::class, 'index'])->name('ipe.index');
         Route::post('/', [IpeController::class, 'store'])->name('ipe.store');
         Route::get('/check/{id}', [IpeController::class, 'check'])->name('ipe.check');
-        Route::post('/batch-check', [IpeController::class, 'batchCheck'])->name('ipe.batch-check');
+
     });
 
     Route::get('/bvn-crm', [BvncrmController::class, 'index'])->name('bvn-crm');
     Route::post('/bvn-crm', [BvncrmController::class, 'store'])->name('crm.store');
     Route::get('/bvn-crm/check/{id}', [BvncrmController::class, 'checkStatus'])->name('crm.check');
-    Route::post('/bvn-crm/batch-check', [BvncrmController::class, 'batchCheck'])->name('crm.batch-check');
+
 
     Route::prefix('nin-personalisation')->group(function () {
         Route::get('/', [AgencyNinPersonalisationController::class, 'index'])->name('nin-personalisation.index');
@@ -255,7 +256,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/modification', [BvnModificationController::class, 'index'])->name('modification');
     Route::post('/modification', [BvnModificationController::class, 'store'])->name('modification.store');
     Route::get('/modification/check/{id}', [BvnModificationController::class, 'checkStatus'])->name('modification.check');
-    Route::post('/modification/batch-check', [BvnModificationController::class, 'batchCheck'])->name('modification.batch-check');
+
 
     Route::prefix('phone-search')->group(function () {
         Route::get('/', [ManualSearchController::class, 'index'])->name('phone.search.index');
@@ -266,7 +267,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('license')->group(function () {
         Route::get('/', [LicenseController::class, 'index'])->name('license.index');
         Route::post('/', [LicenseController::class, 'store'])->name('license.store');
-        Route::post('/batch-check', [LicenseController::class, 'batchCheck'])->name('license.batch-check');
+
     });
 
     /*
@@ -278,6 +279,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Dashboard
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        // Announcements
+        Route::resource('announcements', AdminAnnouncementController::class);
+        Route::patch('announcements/{announcement}/toggle', [AdminAnnouncementController::class, 'toggleStatus'])->name('announcements.toggle');
 
         // User Management
         Route::resource('users', UserManagementController::class);
@@ -349,7 +354,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/{id}', [CRMController::class, 'show'])->name('show');
                 Route::post('/{id}/update', [CRMController::class, 'update'])->name('update');
                 Route::get('/check/{id}', [CRMController::class, 'checkStatus'])->name('check');
-                Route::post('/batch-check', [CRMController::class, 'batchCheck'])->name('batch-check');
+
                 Route::get('/export/csv', [CRMController::class, 'exportCsv'])->name('export-csv');
                 Route::get('/export/excel', [CRMController::class, 'exportExcel'])->name('export-excel');
             });

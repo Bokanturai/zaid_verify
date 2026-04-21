@@ -250,9 +250,7 @@
                     CRM Service Requests
                 </h5>
                 <div class="d-flex align-items-center gap-3">
-                    <button onclick="batchCheck()" class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center">
-                        <i class="ti ti-refresh me-2"></i> Sync All Pending
-                    </button>
+
                     <div class="dropdown">
                         <button class="btn btn-light btn-sm dropdown-toggle shadow-sm d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ti ti-download me-2"></i> Export
@@ -442,54 +440,6 @@
             });
         }
 
-        function batchCheck() {
-            Swal.fire({
-                title: 'Sync All Pending?',
-                text: "Updating all pending CRM requests from the API. This may take a moment.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#6366f1',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Sync Now',
-                reverseButtons: true,
-                showLoaderOnConfirm: true,
-                customClass: {
-                    popup: 'rounded-4 shadow-sm',
-                    confirmButton: 'rounded-pill px-4',
-                    cancelButton: 'rounded-pill px-4'
-                },
-                preConfirm: () => {
-                    return fetch('{{ route('admin.crm.batch-check') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(json => { throw new Error(json.message || 'Batch update failed'); });
-                        }
-                        return response.json();
-                    })
-                    .catch(error => {
-                        Swal.showValidationMessage(`Request failed: ${error}`);
-                    });
-                },
-                allowOutsideClick: () => !Swal.isLoading()
-            }).then((result) => {
-                if (result.isConfirmed && result.value.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: result.value.message,
-                        customClass: { popup: 'rounded-4 shadow-sm' }
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                }
-            });
-        }
+
     </script>
 </x-app-layout>

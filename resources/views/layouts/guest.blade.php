@@ -22,10 +22,11 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/tabler-icons/tabler-icons.min.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-
+    
 </head>
 
 <body class="auth-body">
+  
     <div id="global-loader" style="display: none;">
         <div class="page-loader"></div>
     </div>

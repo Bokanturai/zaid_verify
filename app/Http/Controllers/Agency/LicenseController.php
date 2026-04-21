@@ -115,25 +115,5 @@ class LicenseController extends Controller
             ])->withInput();
         }
     }
-    public function batchCheck()
-    {
-        try {
-            $pendingCount = AgentService::where('user_id', Auth::id())
-                ->where('service_type', 'license_request')
-                ->whereIn('status', ['pending', 'processing'])
-                ->count();
 
-            return response()->json([
-                'success' => true,
-                'message' => "Batch check complete. {$pendingCount} requests are currently being processed by our team.",
-                'checked' => $pendingCount
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Batch Check Error (License): ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Batch check failed: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 }

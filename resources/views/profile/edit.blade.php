@@ -96,14 +96,21 @@
 
                         <!-- Reset Buttons -->
                         <div class="row g-2">
-                            <div class="col-6">
-                                <button class="btn btn-outline-primary w-100 rounded-4 py-3 hover-lift" data-bs-toggle="modal" data-bs-target="#passwordModal">
-                                    <i class="ti ti-lock me-1"></i> Password
+                            <div class="col-4">
+                                <button class="btn btn-outline-primary w-100 rounded-4 py-3 hover-lift shadow-sm" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                                    <i class="ti ti-lock me-1"></i> <span class="d-none d-sm-inline">Pass</span>
                                 </button>
                             </div>
-                            <div class="col-6">
-                                <button class="btn btn-outline-danger w-100 rounded-4 py-3 hover-lift" data-bs-toggle="modal" data-bs-target="#pinModal">
-                                    <i class="ti ti-key me-1"></i> Trans PIN
+                            <div class="col-4">
+                                <button class="btn btn-outline-danger w-100 rounded-4 py-3 hover-lift shadow-sm" data-bs-toggle="modal" data-bs-target="#pinModal">
+                                    <i class="ti ti-key me-1"></i> <span class="d-none d-sm-inline">PIN</span>
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                <button id="profile-theme-toggle" class="btn btn-outline-secondary w-100 rounded-4 py-3 hover-lift shadow-sm theme-toggle-trigger">
+                                    <i class="ti ti-moon theme-toggle-dark-icon"></i>
+                                    <i class="ti ti-sun d-none text-warning theme-toggle-light-icon"></i>
+                                    <span class="d-none d-sm-inline ms-1">Mode</span>
                                 </button>
                             </div>
                         </div>
@@ -114,11 +121,11 @@
             <!-- RIGHT COLUMN: User Details & Settings -->
             <div class="col-12 col-lg-8 mt-3 mt-md-0">
                 <div class="card border-0 shadow-lg rounded-0 rounded-md-4 overflow-hidden h-100 glass-card">
-                    <div class="card-header bg-white border-0 py-4 px-4 d-flex align-items-center justify-content-between">
-                        <h4 class="mb-0 text-dark"><i class="ti ti-user-circle me-2 text-primary"></i>Identity Details</h4>
+                    <div class="card-header bg-primary border-0 py-4 px-4 d-flex align-items-center justify-content-between">
+                        <h4 class="mb-0 text-white"><i class="ti ti-user-circle me-2"></i>Identity Details</h4>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-primary text-decoration-none">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-white text-decoration-none opacity-75">Dashboard</a></li>
                             </ol>
                         </nav>
                     </div>
@@ -345,7 +352,7 @@
                     @csrf
                     <div class="modal-body p-4">
                         <div class="alert alert-warning border-0 rounded-4 mb-4 d-flex">
-                            <i class="ti ti-alert-triangle-filled fs-4 me-2"></i>
+                            <i class="ti ti-alert-triangle-filled fs-14 me-2"></i>
                             <div class="small">The transaction PIN is required for sending funds and making purchases. <strong>Never share it with anyone.</strong></div>
                         </div>
                         <div class="mb-3">

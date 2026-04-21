@@ -1,0 +1,379 @@
+/* Global Dark Mode Overrides */
+
+/* Core Layout */
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6,
+html.dark .h1, html.dark .h2, html.dark .h3, html.dark .h4, html.dark .h5, html.dark .h6 {
+    color: #f1f5f9 !important;
+}
+
+html.dark body {
+    background-color: #0f172a !important;
+    color: #f1f5f9 !important;
+}
+
+html.dark .main-wrapper,
+html.dark .page-wrapper {
+    background-color: #0f172a !important;
+}
+
+/* Header & Utility Backgrounds */
+html.dark .header,
+html.dark .header-left,
+html.dark .sidebar-logo,
+html.dark .bg-white {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html.dark .bg-light,
+html.dark .receipt-box.bg-light {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+/* Case-specific utility overrides */
+html.dark .description-box p.bg-white {
+    background-color: #0f172a !important;
+    color: #f1f5f9 !important;
+}
+
+/* Sidebar */
+html.dark .sidebar {
+    background-color: #1e293b !important;
+    border-right: 1px solid #334155 !important;
+}
+
+html.dark .sidebar-menu li a {
+    color: #94a3b8 !important;
+}
+
+html.dark .sidebar-menu li a:hover, 
+html.dark .sidebar-menu li a.active {
+    color: #f8fafc !important;
+    background-color: #334155 !important;
+}
+
+html.dark .sidebar-menu .submenu ul {
+    background-color: #0f172a !important;
+}
+
+html.dark .sidebar-menu .submenu ul li a:hover {
+    color: #f8fafc !important;
+    background-color: transparent !important;
+}
+
+/* Dashboard Service Items */
+html.dark .service-item:hover,
+html.dark .service-item:active,
+html.dark .service-item:focus {
+    background-color: #334155 !important;
+}
+
+html.dark .bg-primary-soft { background-color: rgba(99, 102, 241, 0.2) !important; }
+html.dark .bg-info-soft { background-color: rgba(6, 182, 212, 0.2) !important; }
+html.dark .bg-warning-soft { background-color: rgba(245, 158, 11, 0.2) !important; }
+html.dark .bg-danger-soft { background-color: rgba(239, 68, 68, 0.2) !important; }
+html.dark .bg-success-soft { background-color: rgba(16, 185, 129, 0.2) !important; }
+html.dark .bg-secondary-soft { background-color: rgba(107, 114, 128, 0.2) !important; }
+
+/* Modal Service Cards */
+html.dark .service-card:hover {
+    background-color: #334155 !important;
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* HOT Badge Border Fix */
+html.dark .badge.border-white {
+    border-color: #334155 !important;
+}
+
+/* Cards & Glassmorphism */
+html.dark .card {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+html.dark .glass-card {
+    background: rgba(30, 41, 59, 0.7) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .card-title, 
+html.dark .card-header .h4, 
+html.dark .card-header .h5,
+html.dark .card-body h1,
+html.dark .card-body h2,
+html.dark .card-body h3,
+html.dark .card-body h4,
+html.dark .card-body h5,
+html.dark .card-body h6 {
+    color: #f8fafc !important;
+}
+
+/* Typography & Contrast */
+html.dark .text-dark { color: #f8fafc !important; }
+html.dark .text-muted { color: #94a3b8 !important; }
+html.dark .text-success { color: #4ade80 !important; }
+
+html.dark .bg-primary-subtle { background-color: rgba(236, 72, 153, 0.15) !important; color: #f472b6 !important; }
+html.dark .bg-success-subtle { background-color: rgba(34, 197, 94, 0.15) !important; color: #4ade80 !important; }
+html.dark .bg-danger-subtle { background-color: rgba(239, 68, 68, 0.15) !important; color: #f87171 !important; }
+
+html.dark .text-primary { color: #f472b6 !important; }
+html.dark .text-danger { color: #f87171 !important; }
+html.dark .text-success { color: #4ade80 !important; }
+html.dark .text-warning { color: #fbbf24 !important; }
+html.dark .text-info { color: #60a5fa !important; }
+
+/* Profile Page Specifics */
+html.dark .profile-photo-container img {
+    border-color: #1e293b !important;
+}
+
+/* Forms */
+html.dark .form-control,
+html.dark .form-select {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+html.dark .input-group-text {
+    background-color: #334155 !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+html.dark label { color: #e2e8f0 !important; }
+
+/* Pagination */
+html.dark .pagination .page-link {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #94a3b8 !important;
+}
+
+html.dark .pagination .page-item.active .page-link {
+    background-color: #FF13F0 !important;
+    border-color: #FF13F0 !important;
+    color: #ffffff !important;
+}
+
+html.dark .pagination .page-item.disabled .page-link {
+    background-color: #0f172a !important;
+    color: #475569 !important;
+    border-color: #334155 !important;
+}
+
+/* Modals */
+html.dark .modal-content {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html.dark .modal-header,
+html.dark .modal-footer,
+html.dark .card-header,
+html.dark .card-footer {
+    border-color: #334155 !important;
+}
+
+/* Dropdown Overrides */
+html.dark .dropdown-menu {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .dropdown-item {
+    color: #cbd5e1 !important; /* slate-300 */
+}
+
+html.dark .dropdown-item:hover,
+html.dark .dropdown-item:active,
+html.dark .dropdown-item:focus {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html.dark .dropdown-item i {
+    color: #94a3b8 !important;
+}
+
+html.dark .dropdown-item:hover i {
+    color: #f8fafc !important;
+}
+
+/* Tables */
+html.dark .table {
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+    background-color: transparent !important;
+}
+
+html.dark .table thead.table-light th,
+html.dark .table thead th {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+}
+
+html.dark .table tbody tr {
+    background-color: #1e293b !important;
+}
+
+html.dark .table tbody td {
+    background-color: transparent !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+html.dark .table-hover tbody tr:hover {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html.dark .table-responsive,
+html.dark .table-responsive-md,
+html.dark .table-responsive-lg,
+html.dark .table-responsive-xl {
+    border-color: #334155 !important;
+    scrollbar-color: #334155 #0f172a;
+}
+
+/* Ensure borders are visible in dark mode */
+html.dark .table, 
+html.dark .table th, 
+html.dark .table td {
+    border-color: #334155 !important;
+}
+
+html.dark .table-bordered,
+html.dark .table-bordered th,
+html.dark .table-bordered td {
+    border: 1px solid #334155 !important;
+}
+
+/* Specific text-secondary override in tables */
+html.dark .table thead th.text-secondary {
+    color: #94a3b8 !important;
+}
+
+/* Soft Badges for Dark Mode */
+html.dark .badge-soft-success,
+html.dark .bg-success-subtle,
+html.dark .alert-success {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+    color: #4ade80 !important;
+}
+
+html.dark .badge-soft-danger,
+html.dark .bg-danger-subtle,
+html.dark .alert-danger {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #f87171 !important;
+}
+
+html.dark .badge-soft-warning,
+html.dark .bg-warning-subtle,
+html.dark .alert-warning {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+}
+
+html.dark .badge-soft-info,
+html.dark .bg-info-subtle,
+html.dark .alert-info {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+    color: #60a5fa !important;
+}
+
+/* Custom Soft Multi-purpose Alerts */
+html.dark .alert-soft-warning {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+    border: 1px solid rgba(245, 158, 11, 0.1) !important;
+}
+
+html.dark .alert-secondary {
+    background-color: rgba(51, 65, 85, 0.5) !important;
+    color: #cbd5e1 !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+
+/* Switches & Checks */
+html.dark .form-switch .form-check-input {
+    background-color: #334155;
+    border-color: #475569;
+}
+
+html.dark .form-check-input:checked {
+    background-color: #FF13F0 !important;
+    border-color: #FF13F0 !important;
+}
+
+/* Scrollbar */
+html.dark ::-webkit-scrollbar-track { background: #0f172a; }
+html.dark ::-webkit-scrollbar-thumb { background: #334155; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* SweetAlert2 Dark Mode Overrides */
+html.dark .swal2-popup {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .swal2-title {
+    color: #f8fafc !important;
+}
+
+html.dark .swal2-html-container {
+    color: #cbd5e1 !important;
+}
+
+html.dark .swal2-confirm {
+    background-color: #FF13F0 !important;
+    box-shadow: 0 0 0 3px rgba(255, 19, 240, 0.2) !important;
+}
+
+html.dark .swal2-cancel {
+    background-color: #475569 !important;
+}
+
+html.dark .swal2-success-circular-line-left,
+html.dark .swal2-success-circular-line-right,
+html.dark .swal2-success-fix {
+    background-color: #1e293b !important;
+}
+
+html.dark .swal2-timer-progress-bar {
+    background: #FF13F0 !important;
+}
+
+html.dark .swal2-input,
+html.dark .swal2-file,
+html.dark .swal2-textarea,
+html.dark .swal2-select,
+html.dark .swal2-radio,
+html.dark .swal2-checkbox {
+    background-color: #0f172a !important;
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
+
+html.dark .swal2-input:focus,
+html.dark .swal2-file:focus,
+html.dark .swal2-textarea:focus,
+html.dark .swal2-select:focus,
+html.dark .swal2-radio:focus,
+html.dark .swal2-checkbox:focus {
+    border-color: #FF13F0 !important;
+    box-shadow: 0 0 0 3px rgba(255, 19, 240, 0.2) !important;
+}
+

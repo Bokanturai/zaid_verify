@@ -3,13 +3,13 @@
     <!-- Logo -->
     <div class="sidebar-logo">
         <a href="{{ route('dashboard') }}" class="logo logo-normal">
-            <img src="{{ asset('assets/images/logo/logo.png') }}" alt="Logo" style="height: 50px;">
+            <img src="{{ asset('assets/images/logo/logo.png') }}" alt="Logo" style="height: 35px;">
         </a>
         <a href="{{ route('dashboard') }}" class="logo-small">
-            <img src="{{ asset('assets/images/logo/logo.png') }}" alt="Logo">
+            <img src="{{ asset('assets/images/logo/logo.png') }}" alt="Logo" style="height: 25px;">
         </a>
         <a href="{{ route('dashboard') }}" class="dark-logo">
-            <img src="{{ asset('assets/images/logo/logo.png') }}" alt="Logo" style="height: 40px;">
+            <img src="{{ asset('assets/images/logo/logo.png') }}" alt="Logo" style="height: 35px;">
         </a>
     </div>
     <!-- /Logo -->
@@ -170,15 +170,18 @@
                     </li>
 
                     <!-- User management -->
-                    <li class="submenu {{ request()->routeIs('admin.users.*') ? 'active submenu-open' : '' }}">
-                        <a href="javascript:void(0);" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <li class="submenu {{ request()->routeIs('admin.users.*', 'admin.announcements.*') ? 'active submenu-open' : '' }}">
+                        <a href="javascript:void(0);" class="{{ request()->routeIs('admin.users.*', 'admin.announcements.*') ? 'active' : '' }}">
                             <i class="ti ti-users-group"></i>
-                            <span>Users</span>
+                            <span>Users & Comms</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <ul>
                             <li><a href="{{ route('admin.users.index') }}"
                                     class="{{ request()->routeIs('admin.users.index') ? 'active' : '' }}">Manage Users</a>
+                            </li>
+                            <li><a href="{{ route('admin.announcements.index') }}"
+                                    class="{{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">Manage Notifications</a>
                             </li>
                         </ul>
                     </li>
@@ -298,7 +301,8 @@
     }
 
     .sidebar-logo {
-        padding: 20px;
+        padding: 10px 20px;
+        height: 60px;
         background: #ffffff;
         border-bottom: 1px solid #f8f9fa;
         display: flex;

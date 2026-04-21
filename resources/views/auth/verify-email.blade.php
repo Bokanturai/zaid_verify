@@ -6,7 +6,24 @@
             </div>
         </div>
         <h2 class="h4 fw-bold text-dark mb-1">Verify Email</h2>
-        <p class="text-muted small">One last step to secure your experience</p>
+        <p class="text-muted small mb-4">Account Activation Required</p>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+        <div class="card-body p-4 text-start">
+            <p class="text-muted small mb-3" style="line-height: 1.6;">
+                To complete your registration and activate your account, please check your email inbox and click the verification link we sent to you.
+            </p>
+            <p class="text-muted small mb-3" style="line-height: 1.6;">
+                If you don't see the email, please check your <span class="fw-bold text-primary">spam or junk folder</span>.
+            </p>
+            <div class="mt-3 pt-3 border-top">
+                <p class="small mb-0 text-dark fw-bold">
+                    <i class="ti ti-alert-circle me-1 text-warning"></i> Note: 
+                    <span class="fw-normal">You must verify your email before you can start using your account.</span>
+                </p>
+            </div>
+        </div>
     </div>
 
     @if (session('status') == 'verification-link-sent')

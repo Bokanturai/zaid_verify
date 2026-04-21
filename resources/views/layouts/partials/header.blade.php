@@ -2,7 +2,11 @@
 <div class="header">
     <div class="main-header">
         <!-- Header Left - Logo -->
-       
+        <div class="header-left">
+            <a href="{{ route('dashboard') }}" class="logo">
+                <img src="{{ asset('assets/images/logo/favicon.png') }}" alt="Logo" style="height: 35px; width: auto;">
+            </a>
+        </div>
 
         <!-- Mobile Menu Button -->
         <a id="mobile_btn" class="mobile_btn" href="#sidebar">
@@ -105,6 +109,15 @@
                         <a href="#" class="btn btn-menubar btnFullscreen">
                             <i class="ti ti-maximize"></i>
                         </a>
+                    </div>
+
+                    <!-- Theme Toggle Switch -->
+                    <div class="me-2 d-flex align-items-center">
+                        <div class="form-check form-switch p-0 mb-0">
+                            <input class="form-check-input theme-switch-input" type="checkbox" id="theme-toggle" style="height: 24px; width: 44px; cursor: pointer;">
+                        </div>
+                        <i id="theme-toggle-dark-icon" class="ti ti-moon ms-2 fs-16 theme-toggle-dark-icon"></i>
+                        <i id="theme-toggle-light-icon" class="ti ti-sun ms-2 fs-16 d-none text-warning theme-toggle-light-icon"></i>
                     </div>
                     
                     <!-- Applications Dropdown -->

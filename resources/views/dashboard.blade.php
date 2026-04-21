@@ -201,8 +201,8 @@
             <!-- Recent Transactions -->
             <div class="col-xxl-8 col-xl-7 d-flex">
                 <div class="card flex-fill border-0 shadow-sm rounded-0 rounded-md-4 overflow-hidden">
-                    <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap border-bottom-0">
-                        <h5 class="mb-0 fw-bold text-dark">Recent Transactions</h5>
+                    <div class="card-header bg-primary py-3 d-flex align-items-center justify-content-between flex-wrap border-bottom-0">
+                        <h5 class="mb-0 fw-bold text-white">Recent Transactions</h5>
                         <a href="{{ route('transactions') }}" class="btn btn-sm btn-light text-primary fw-medium">View All</a>
                     </div>
                     <div class="card-body p-0">
@@ -276,8 +276,8 @@
             <!-- Transaction Statistics -->
             <div class="col-xxl-4 col-xl-5 d-none d-xl-flex">
                 <div class="card flex-fill border-0 shadow-sm rounded-0 rounded-md-4 overflow-hidden">
-                    <div class="card-header bg-white py-3 border-bottom-0">
-                        <h5 class="mb-0 fw-bold text-dark">Transaction Statistics</h5>
+                    <div class="card-header bg-primary py-3 border-bottom-0">
+                        <h5 class="mb-0 fw-bold text-white">Transaction Statistics</h5>
                     </div>
                     <div class="card-body">
                         <div class="position-relative mb-4 d-flex justify-content-center">

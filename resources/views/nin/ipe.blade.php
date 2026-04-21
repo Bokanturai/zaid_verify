@@ -9,11 +9,7 @@
                         <h3 class="fw-bold text-dark">IPE Clearance</h3>
                         <p class="text-muted small mb-0">Submit requests for IPE Clearance services.</p>
                     </div>
-                    <div class="col-sm-6 col-12 text-end">
-                        <button class="btn btn-primary rounded-pill shadow-sm" onclick="batchCheck()">
-                            <i class="ti ti-refresh me-2"></i>Check All Pending
-                        </button>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -23,8 +19,8 @@
                 {{-- Request Form Column --}}
                 <div class="col-xl-5 mb-4">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                        <div class="card-header bg-white py-3 border-bottom-0">
-                            <h5 class="mb-0 fw-bold text-primary"><i class="ti ti-shield-check me-2"></i>New IPE Request</h5>
+                        <div class="card-header bg-primary py-3 mb-0">
+                            <h5 class="mb-0 fw-bold text-white"><i class="ti ti-shield-check me-2"></i>New IPE Request</h5>
                         </div>
 
                         <div class="card-body p-4">
@@ -106,9 +102,9 @@
                 {{-- Submission History Column --}}
                 <div class="col-xl-7">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                        <div class="card-header bg-white py-3 border-bottom-0 d-flex align-items-center justify-content-between">
-                            <h5 class="fw-bold mb-0 text-dark">
-                                <i class="ti ti-history me-2 text-primary"></i> Request History
+                        <div class="card-header bg-primary py-3 mb-0 d-flex align-items-center justify-content-between">
+                            <h5 class="fw-bold mb-0 text-white">
+                                <i class="ti ti-history me-2"></i> Request History
                             </h5>
                         </div>
 
@@ -349,59 +345,7 @@
             }
         });
         
-        // Batch Check
-        function batchCheck() {
-            Swal.fire({
-                title: 'Check All Pending?',
-                text: "We will check the status of up to 20 pending items.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, Start Batch Check!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Batch Processing...',
-                        html: 'Checking statuses... <br><b>Please do not close this page.</b>',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
 
-                    fetch('{{ route('ipe.batch-check') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Batch Check Complete',
-                                text: data.message,
-                                confirmButtonText: 'Great!'
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            throw new Error(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Batch Check Failed',
-                            text: error.message || 'An error occurred while communicating with the server.',
-                        });
-                    });
-                }
-            });
-        }
     </script>
     <style>
         .hover-up:hover {
