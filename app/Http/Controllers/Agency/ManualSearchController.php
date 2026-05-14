@@ -12,6 +12,9 @@ use App\Models\AgentService;
 use App\Models\Transaction;
 use App\Models\Service;
 use App\Models\Wallet;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 
 class ManualSearchController extends Controller
 {
@@ -140,9 +143,37 @@ class ManualSearchController extends Controller
                 ],
             ]);
 
+
+            // 4. API Submission to Arewa Smart
+            $apiKey = env('AREWA_API_TOKEN');
+            $apiBaseUrl = env('AREWA_BASE_URL', 'https://api.arewasmart.com.ng/api/v1');
+            $apiUrl = rtrim($apiBaseUrl, '/') . '/bvn/phone-search';
+
+            $payload = [
+                'field_code' => $serviceField->field_code,
+                'phone_number' => $validated['number'],
+            ];
+
+            try {
+                $response = Http::withToken($apiKey)
+                    ->withoutVerifying()
+                    ->acceptJson()
+                    ->post($apiUrl, $payload);
+
+                
+                $data = $response->json();
+
+                if (!$response->successful() || !($data['success'] ?? false)) {
+                    throw new \Exception('API Submission Failed: ' . ($data['message'] ?? 'Unknown Provider Error'));
+                }
+            } catch (\Exception $e) {
+                Log::error('Arewa BVN Search API Error: ' . $e->getMessage());
+                throw new \Exception('Connection Error: Unable to reach service provider. ' . $e->getMessage());
+            }
+
             // Record submission
             AgentService::create([
-                'reference' => $transactionRef,
+                'reference' => $data['data']['reference'] ?? $transactionRef,
                 'user_id' => $user->id,
                 'service_field_id' => $serviceField->id,
                 'service_id' => $serviceField->service_id,
@@ -154,8 +185,9 @@ class ManualSearchController extends Controller
                 'transaction_id' => $transaction->id,
                 'performed_by' => $performedBy,
                 'submission_date' => now(),
-                'status' => 'pending',
+                'status' => 'processing', // Set to processing after successful API submission
                 'service_type' => 'bvn_search',
+                'comment' => $data['message'] ?? 'Submitted to Arewa API',
             ]);
 
             // Deduct from wallet
@@ -165,9 +197,10 @@ class ManualSearchController extends Controller
 
             return redirect()->route('phone.search.index')->with([
                 'status' => 'success',
-                'message' => 'Phone number submitted successfully. Ref: ' . $transactionRef .
+                'message' => 'BVN Search request submitted successfully. Ref: ' . ($data['data']['reference'] ?? $transactionRef) .
                     '. Charged NGN ' . number_format($servicePrice, 2),
             ]);
+
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -181,7 +214,109 @@ class ManualSearchController extends Controller
     }
 
     /**
+     * Check status of a BVN Search request for the user.
+     */
+    public function checkStatus($id)
+    {
+        try {
+            $enrollment = AgentService::where('id', $id)
+                ->where('user_id', Auth::id())
+                ->where('service_type', 'bvn_search')
+                ->firstOrFail();
+            
+            $apiToken = env('AREWA_API_TOKEN');
+            $baseUrl = env('AREWA_BASE_URL', 'https://api.arewasmart.com.ng/api/v1');
+            $endpoint = rtrim($baseUrl, '/') . '/bvn/phone-search';
+
+            $response = Http::withToken($apiToken)
+                ->withoutVerifying()
+                ->acceptJson()
+                ->get($endpoint, [
+                    'reference' => $enrollment->reference,
+                ]);
+
+            if ($response->successful()) {
+                $apiResponse = $response->json();
+                $cleanResponse = $this->cleanApiResponse($apiResponse);
+                
+                $updateData = [
+                    'comment' => $cleanResponse,
+                ];
+
+                $data = $apiResponse['data'] ?? $apiResponse;
+
+                if (isset($data['status'])) {
+                    $updateData['status'] = $this->normalizeStatus($data['status']);
+                }
+                
+                if (isset($data['bvn'])) {
+                    $updateData['bvn'] = $data['bvn'];
+                }
+
+                $enrollment->update($updateData);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status updated: ' . ucfirst($enrollment->status),
+                    'data' => [
+                        'status' => $enrollment->status,
+                        'comment' => $enrollment->comment,
+                        'bvn' => $enrollment->bvn,
+                    ]
+                ]);
+            }
+
+            $lastError = $response->json('message') ?? $response->json('error') ?? 'Provider API error.';
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Sync failed: ' . $lastError,
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function cleanApiResponse($response): string
+    {
+        if (is_array($response)) {
+            $data = $response['data'] ?? $response;
+            if (isset($data['comment']) && is_string($data['comment'])) return $data['comment'];
+            if (isset($response['message']) && is_string($response['message'])) return $response['message'];
+
+            $toExclude = ['status', 'success', 'bvn', 'response', 'message', 'comment', 'reference', 'phone_number', 'field_code'];
+            $toKeep = array_diff_key($data, array_flip($toExclude));
+
+            $parts = [];
+            foreach ($toKeep as $key => $value) {
+                if (!is_scalar($value) || strlen((string)$value) > 255) continue;
+                $label = ucfirst(str_replace(['_', '-'], ' ', $key));
+                $parts[] = $label . ': ' . (is_bool($value) ? ($value ? 'Yes' : 'No') : $value);
+            }
+            return !empty($parts) ? implode(', ', $parts) : 'Processed';
+        }
+        return (string) $response;
+    }
+
+    private function normalizeStatus($status): string
+    {
+        $s = strtolower(trim((string) $status));
+        return match ($s) {
+            'successful', 'success', 'resolved', 'approved', 'completed' => 'successful',
+            'processing', 'in_progress', 'in-progress', 'submitted', 'new', 'pending' => 'processing',
+            'failed', 'rejected', 'error', 'declined', 'invalid', 'no record' => 'failed',
+            'query', 'queried' => 'query',
+            default => 'pending',
+        };
+    }
+
+    /**
      * Fetch dynamic service field price based on user role.
+
      */
     public function getFieldPrice(Request $request)
     {

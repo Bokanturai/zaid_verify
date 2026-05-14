@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 
 class BvnSearchController extends Controller
 {
@@ -231,6 +234,189 @@ class BvnSearchController extends Controller
         ]);
     }
 
+
+    /**
+     * Check status of a BVN Search request using Arewa Smart API
+     */
+    public function checkStatus($id)
+    {
+        try {
+            $enrollment = AgentService::findOrFail($id);
+            $result = $this->performStatusCheck($enrollment);
+
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status updated successfully using reference: ' . ($enrollment->reference ?? 'N/A'),
+                    'data' => [
+                        'status' => $enrollment->status,
+                        'comment' => $enrollment->comment,
+                        'bvn' => $enrollment->bvn,
+                        'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch status from API: ' . ($result['message'] ?? 'Unknown error'),
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Batch check status for up to 10 requests
+     */
+    public function checkBatchStatus()
+    {
+        try {
+            $enrollments = AgentService::where('service_type', 'bvn_search')
+                ->whereIn('status', ['pending', 'processing', 'in-progress', 'in-prograce', 'query'])
+                ->orderBy('created_at', 'asc')
+                ->limit(10)
+                ->get();
+
+            if ($enrollments->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No eligible requests found for batch status check.'
+                ], 404);
+            }
+
+            $successCount = 0;
+            $failedCount = 0;
+
+            foreach ($enrollments as $enrollment) {
+                $result = $this->performStatusCheck($enrollment);
+                if ($result['success']) {
+                    $successCount++;
+                } else {
+                    $failedCount++;
+                }
+                
+                // Rate limiting delay (0.5 seconds)
+                usleep(500000);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Batch check completed. Success: {$successCount}, Failed: {$failedCount}.",
+                'data' => [
+                    'success_count' => $successCount,
+                    'failed_count' => $failedCount,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batch check failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Core logic to perform status check via API
+     */
+    private function performStatusCheck($enrollment)
+    {
+        try {
+            $apiToken = env('AREWA_API_TOKEN');
+            $baseUrl = env('AREWA_BASE_URL', 'https://api.arewasmart.com.ng/api/v1');
+            $endpoint = rtrim($baseUrl, '/') . '/bvn/phone-search';
+
+            $response = Http::withToken($apiToken)
+                ->withoutVerifying()
+                ->acceptJson()
+                ->get($endpoint, [
+                    'reference' => $enrollment->reference,
+                ]);
+
+            if ($response->successful()) {
+                $apiResponse = $response->json();
+                $cleanResponse = $this->cleanApiResponse($apiResponse);
+                
+                $updateData = [
+                    'comment' => $cleanResponse,
+                ];
+
+                $data = $apiResponse['data'] ?? $apiResponse;
+
+                if (isset($data['status'])) {
+                    $updateData['status'] = $this->normalizeStatus($data['status']);
+                } elseif (isset($apiResponse['status'])) {
+                    $updateData['status'] = $this->normalizeStatus($apiResponse['status']);
+                }
+                
+                if (isset($data['bvn'])) {
+                    $updateData['bvn'] = $data['bvn'];
+                }
+
+                $enrollment->update($updateData);
+                return ['success' => true];
+            }
+
+            $lastError = $response->json('message') ?? $response->json('error') ?? 'Record not found or API error.';
+            Log::warning("BvnSearch Status Check Failed for ID {$enrollment->id}: " . $lastError);
+            return ['success' => false, 'message' => $lastError];
+
+        } catch (\Exception $e) {
+            Log::error("BvnSearch Status Check Exception for ID {$enrollment->id}: " . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    private function cleanApiResponse($response): string
+    {
+        if (is_array($response)) {
+            $data = $response['data'] ?? $response;
+
+            if (isset($data['comment']) && is_string($data['comment'])) {
+                return $data['comment'];
+            }
+            if (isset($response['message']) && is_string($response['message'])) {
+                return $response['message'];
+            }
+
+            $toExclude = ['status', 'success', 'bvn', 'response', 'message', 'comment', 'reference', 'phone_number', 'field_code'];
+            $toKeep = array_diff_key($data, array_flip($toExclude));
+
+            if (empty($toKeep)) {
+                return (isset($response['success']) && $response['success']) ? 'Successful' : (isset($data['status']) ? ucfirst($data['status']) : 'Processed');
+            }
+
+            $parts = [];
+            foreach ($toKeep as $key => $value) {
+                if (!is_scalar($value) || strlen((string)$value) > 255) continue;
+                $label = ucfirst(str_replace(['_', '-'], ' ', $key));
+                $parts[] = $label . ': ' . (is_bool($value) ? ($value ? 'Yes' : 'No') : $value);
+            }
+
+            return !empty($parts) ? implode(', ', $parts) : 'Processed';
+        }
+
+        return (string) $response;
+    }
+
+    private function normalizeStatus($status): string
+    {
+        $s = strtolower(trim((string) $status));
+        
+        return match ($s) {
+            'successful', 'success', 'resolved', 'approved', 'completed' => 'successful',
+            'processing', 'in_progress', 'in-progress', 'submitted', 'new', 'pending' => 'processing',
+            'failed', 'rejected', 'error', 'declined', 'invalid', 'no record' => 'failed',
+            'query', 'queried' => 'query',
+            default => 'pending',
+        };
+    }
+
     /**
      * Get distinct banks from agent_services table
      */
@@ -244,3 +430,4 @@ class BvnSearchController extends Controller
             ->values();
     }
 }
+

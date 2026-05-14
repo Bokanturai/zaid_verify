@@ -14,10 +14,14 @@
                             <a href="{{ route('admin.bvn-search.index') }}" class="btn btn-light">
                                 <i class="ti ti-arrow-left me-1"></i> Back to List
                             </a>
+                            <button type="button" class="btn btn-info text-white" id="check-status-btn">
+                                <i class="ti ti-refresh me-1"></i> Check Status
+                            </button>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
                                 <i class="ti ti-edit me-1"></i> Update Request
                             </button>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -373,4 +377,58 @@
             });
         });
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('check-status-btn').addEventListener('click', function() {
+            const btn = this;
+            const originalHtml = btn.innerHTML;
+            
+            Swal.fire({
+                title: 'Checking Status...',
+                text: 'Please wait while we fetch the latest status from Arewa Smart.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking...';
+
+            fetch("{{ route('admin.bvn-search.check', $enrollmentInfo->id) }}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Status Updated!',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Status Check Failed',
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An unexpected error occurred: ' + error.message
+                    });
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                });
+        });
+    </script>
 </x-app-layout>
+

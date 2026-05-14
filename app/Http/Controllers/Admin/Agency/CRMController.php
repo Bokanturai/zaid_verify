@@ -321,7 +321,91 @@ class CRMController extends Controller
     {
         try {
             $enrollment = AgentService::findOrFail($id);
-            
+            $result = $this->performStatusCheck($enrollment);
+
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status updated successfully.',
+                    'data' => [
+                        'status' => $enrollment->status,
+                        'comment' => $enrollment->comment,
+                        'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch status from API: ' . ($result['message'] ?? 'Unknown error'),
+            ], 400);
+
+        } catch (\Exception $e) {
+            Log::error('Admin CRM Status Check Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Batch check status for up to 10 CRM requests
+     */
+    public function checkBatchStatus()
+    {
+        try {
+            $enrollments = AgentService::where('service_type', 'CRM')
+                ->whereIn('status', ['pending', 'processing', 'in-progress', 'in-prograce', 'query'])
+                ->orderBy('created_at', 'asc')
+                ->limit(10)
+                ->get();
+
+            if ($enrollments->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No eligible CRM requests found for batch status check.'
+                ], 404);
+            }
+
+            $successCount = 0;
+            $failedCount = 0;
+
+            foreach ($enrollments as $enrollment) {
+                $result = $this->performStatusCheck($enrollment);
+                if ($result['success']) {
+                    $successCount++;
+                } else {
+                    $failedCount++;
+                }
+                
+                // Rate limiting delay (0.5 seconds)
+                usleep(500000);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Batch check completed. Success: {$successCount}, Failed: {$failedCount}.",
+                'data' => [
+                    'success_count' => $successCount,
+                    'failed_count' => $failedCount,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batch check failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Core logic to perform CRM status check via API
+     */
+    private function performStatusCheck($enrollment)
+    {
+        try {
             $apiToken = env('AREWA_API_TOKEN');
             $baseUrl = env('AREWA_BASE_URL', 'https://api.arewasmart.com.ng/api/v1');
             $endpoint = rtrim($baseUrl, '/') . '/bvn/crm';
@@ -336,10 +420,7 @@ class CRMController extends Controller
             }
 
             if (empty($params)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No valid identifier found for this request.',
-                ], 400);
+                return ['success' => false, 'message' => 'No valid identifier found.'];
             }
 
             $response = Http::withToken($apiToken)
@@ -367,31 +448,16 @@ class CRMController extends Controller
                 }
 
                 $enrollment->update($updateData);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Status updated successfully.',
-                    'data' => [
-                        'status' => $enrollment->status,
-                        'comment' => $enrollment->comment,
-                        'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
-                    ]
-                ]);
+                return ['success' => true];
             }
 
             $lastError = $response->json('message') ?? 'Record not found or API error.';
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch status from API: ' . $lastError,
-            ], 400);
+            Log::warning("CRM Status Check Failed for ID {$enrollment->id}: " . $lastError);
+            return ['success' => false, 'message' => $lastError];
 
         } catch (\Exception $e) {
-            Log::error('Admin CRM Status Check Error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-            ], 500);
+            Log::error("CRM Status Check Exception for ID {$enrollment->id}: " . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
 

@@ -171,6 +171,9 @@
                                             <i class="ti ti-refresh me-2 fs-18"></i> Clear
                                         </a>
                                     @endif
+                                    <button type="button" id="batchCheckBtn" class="btn btn-info text-white px-4 py-2 d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-loader-2 me-2 fs-18"></i> Batch Check (10)
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -280,6 +283,11 @@
                                     </div>
                                 </td>
                                 <td class="pe-4 text-end">
+                                    <button type="button" class="btn btn-icon btn-info btn-sm rounded-circle shadow-sm sync-status-btn text-white" 
+                                            data-id="{{ $enrollment->id }}" 
+                                            data-bs-toggle="tooltip" title="Sync Status">
+                                        <i class="ti ti-refresh"></i>
+                                    </button>
                                     <a href="{{ route('admin.ninipe.show', $enrollment->id) }}" class="btn btn-icon btn-light btn-sm rounded-circle shadow-sm" data-bs-toggle="tooltip" title="View Details">
                                         <i class="ti ti-eye text-primary"></i>
                                     </a>
@@ -345,4 +353,112 @@
 </style>
 
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Single Sync
+    document.querySelectorAll('.sync-status-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const btn = this;
+            const originalHtml = btn.innerHTML;
+            
+            Swal.fire({
+                title: 'Syncing Status...',
+                text: 'Fetching latest information from Arewa Smart.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            let url = "{{ route('admin.ninipe.check', ':id') }}".replace(':id', id);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed',
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred: ' + error.message
+                    });
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                });
+        });
+    });
+
+    // Batch Sync
+    document.getElementById('batchCheckBtn').addEventListener('click', function() {
+        const btn = this;
+        const originalHtml = btn.innerHTML;
+
+        Swal.fire({
+            title: 'Batch Syncing...',
+            text: 'Checking status for up to 10 requests. Please wait...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Checking...';
+
+        fetch("{{ route('admin.ninipe.check-batch') }}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Batch Check Completed',
+                        text: data.message,
+                        confirmButtonText: 'Great!'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Batch Check Info',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Batch check failed: ' + error.message
+                });
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            });
+    });
+</script>
 </x-app-layout>

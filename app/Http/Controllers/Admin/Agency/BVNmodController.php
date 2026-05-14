@@ -26,13 +26,92 @@ class BVNmodController extends Controller
     {
         try {
             $enrollment = AgentService::findOrFail($id);
+            $result = $this->performStatusCheck($enrollment);
             
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status updated successfully.',
+                    'data' => [
+                        'status' => $enrollment->status,
+                        'comment' => $enrollment->comment,
+                        'file_url' => $enrollment->file_url,
+                        'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch status: ' . ($result['message'] ?? 'Unknown error'),
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Batch check status for multiple bvn_modifications
+     */
+    public function checkBatchStatus()
+    {
+        try {
+            $enrollments = AgentService::where('service_type', 'bvn_modification')
+                ->whereIn('status', ['pending', 'processing', 'in-progress', 'in-prograce', 'query'])
+                ->orderBy('created_at', 'asc')
+                ->limit(10)
+                ->get();
+
+            if ($enrollments->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No eligible requests found for batch status check.'
+                ], 404);
+            }
+
+            $successCount = 0;
+            $failedCount = 0;
+
+            foreach ($enrollments as $enrollment) {
+                $result = $this->performStatusCheck($enrollment);
+                if ($result['success']) {
+                    $successCount++;
+                } else {
+                    $failedCount++;
+                }
+                
+                // Rate limiting delay (0.5 seconds)
+                usleep(500000);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Batch check completed. Success: {$successCount}, Failed: {$failedCount}."
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("BVNmod Batch Check Exception: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Batch check failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Core logic to perform status check
+     */
+    private function performStatusCheck($enrollment)
+    {
+        try {
             $apiToken = env('AREWA_API_TOKEN');
             $baseUrl = env('AREWA_BASE_URL');
-            $endpoint = $baseUrl . '/bvn/modification';
+            $endpoint = rtrim($baseUrl, '/') . '/bvn/modification';
 
-            // Identify which ID to use for the check
-            // We prioritize request_id, then ticket_id, then reference
             $identifiers = array_filter([
                 $enrollment->request_id,
                 $enrollment->ticket_id,
@@ -40,10 +119,7 @@ class BVNmodController extends Controller
             ]);
 
             if (empty($identifiers)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No valid reference found for this record.',
-                ], 400);
+                return ['success' => false, 'message' => 'No valid reference found.'];
             }
 
             $lastError = 'Record not found.';
@@ -62,43 +138,26 @@ class BVNmodController extends Controller
                     if (isset($data['success']) && $data['success'] && isset($data['data'])) {
                         $apiData = $data['data'];
                         
-                        // Update enrollment
                         $enrollment->status = $this->normalizeStatus($apiData['status'] ?? $enrollment->status);
                         $enrollment->comment = $apiData['reason'] ?? ($apiData['comment'] ?? $enrollment->comment);
                         
-                        // Handle file_url if provided
                         if (isset($apiData['file_url']) && $apiData['file_url']) {
                             $enrollment->file_url = $apiData['file_url'];
                         }
                         
                         $enrollment->save();
-
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'Status updated successfully using reference: ' . $ref,
-                            'data' => [
-                                'status' => $enrollment->status,
-                                'comment' => $enrollment->comment,
-                                'file_url' => $enrollment->file_url,
-                                'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
-                            ]
-                        ]);
+                        return ['success' => true];
                     }
                 }
-                
                 $lastError = $response->json('message') ?? 'Record not found.';
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch status from API: ' . $lastError,
-            ], 400);
+            Log::warning("BVNmod Status Check Failed for ID {$enrollment->id}: " . $lastError);
+            return ['success' => false, 'message' => $lastError];
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-            ], 500);
+            Log::error("BVNmod Status Check Exception for ID {$enrollment->id}: " . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
     /**

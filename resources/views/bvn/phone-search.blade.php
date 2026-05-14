@@ -53,27 +53,23 @@
                             <form method="POST" action="{{ route('phone.search.store') }}" class="row g-4">
                                 @csrf
 
-                                <!-- Service Field -->
-                                <div class="col-md-12">
-                                    <label class="form-label fw-bold">Service Type <span class="text-danger">*</span></label>
-                                    <select class="form-select border-primary-subtle" name="service_field_id" id="phone_service_field" required>
-                                        <option value="">-- Select Validation Type --</option>
-                                        @foreach ($serviceFields as $field)
-                                            @php
-                                                $price = $field->getPriceForUserType(auth()->user()->role);
-                                            @endphp
-                                            <option value="{{ $field->id }}"
-                                                data-price="{{ $price }}"
-                                                data-description="{{ $field->description }}"
-                                                {{ old('service_field_id') == $field->id ? 'selected' : '' }}>
-                                                {{ $field->field_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="mt-2">
-                                        <small class="text-muted fst-italic" id="phone-field-description"></small>
-                                    </div>
-                                </div>
+                                <!-- Service Field (Hidden as there is only one type) -->
+                                @if($serviceFields->count() > 0)
+                                    <input type="hidden" name="service_field_id" value="{{ $serviceFields->first()->id }}">
+                                    @php
+                                        $field = $serviceFields->first();
+                                        $price = $field->getPriceForUserType(auth()->user()->role);
+                                    @endphp
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function() {
+                                            const priceDisplay = document.getElementById('phone-field-price');
+                                            const descDisplay = document.getElementById('phone-field-description');
+                                            if(priceDisplay) priceDisplay.innerText = '₦{{ number_format($price, 2) }}';
+                                            if(descDisplay) descDisplay.innerText = '{{ $field->description }}';
+                                        });
+                                    </script>
+                                @endif
+
 
                                 <!-- Phone Number -->
                                 <div class="col-md-12">
@@ -201,6 +197,12 @@
                                                         }
                                                     @endphp
                                                     <button type="button"
+                                                        class="btn btn-sm btn-icon btn-outline-info sync-status-btn"
+                                                        data-id="{{ $submission->id }}"
+                                                        title="Sync Status">
+                                                        <i class="bi bi-arrow-repeat"></i>
+                                                    </button>
+                                                    <button type="button"
                                                         class="btn btn-sm btn-icon btn-outline-primary"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#commentModal"
@@ -208,6 +210,7 @@
                                                         data-file-url="{{ $fileUrl }}">
                                                         <i class="bi bi-eye-fill"></i>
                                                     </button>
+
                                                 </td>
                                             </tr>
                                         @empty
@@ -274,4 +277,63 @@
     </style>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll('.sync-status-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                
+                Swal.fire({
+                    title: 'Syncing...',
+                    text: 'Fetching latest status from the provider.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+                let url = "{{ route('phone.search.check', ':id') }}".replace(':id', id);
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: data.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Failed',
+                                text: data.message
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred: ' + error.message
+                        });
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    });
+            });
+        });
+    </script>
 </x-app-layout>
+

@@ -26,13 +26,86 @@ class NINmodController extends Controller
     {
         try {
             $enrollment = AgentService::findOrFail($id);
-            
+            $result = $this->performStatusCheck($enrollment);
+
+            if ($result['success']) {
+                return $this->statusResponse($enrollment, $result['matched_using']);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch status from API: ' . ($result['message'] ?? 'Unknown error'),
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Batch check status for up to 10 NIN modification requests
+     */
+    public function checkBatchStatus()
+    {
+        try {
+            $enrollments = AgentService::whereIn('service_type', ['nin_modification', 'nin modification'])
+                ->whereIn('status', ['pending', 'processing', 'in-progress', 'in-prograce', 'query'])
+                ->orderBy('created_at', 'asc')
+                ->limit(10)
+                ->get();
+
+            if ($enrollments->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No eligible NIN modification requests found for batch status check.'
+                ], 404);
+            }
+
+            $successCount = 0;
+            $failedCount = 0;
+
+            foreach ($enrollments as $enrollment) {
+                $result = $this->performStatusCheck($enrollment);
+                if ($result['success']) {
+                    $successCount++;
+                } else {
+                    $failedCount++;
+                }
+                
+                // Rate limiting delay (0.5 seconds)
+                usleep(500000);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Batch check completed. Success: {$successCount}, Failed: {$failedCount}.",
+                'data' => [
+                    'success_count' => $successCount,
+                    'failed_count' => $failedCount,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batch check failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Core logic to perform NIN modification status check via API
+     */
+    private function performStatusCheck($enrollment)
+    {
+        try {
             $apiToken = env('AREWA_API_TOKEN');
             $baseUrl = env('AREWA_BASE_URL');
             $endpoint = $baseUrl . '/nin/modification';
 
-            // Identify which identifiers to use for the check
-            // We prioritize reference, then request_id, then ticket_id, then NIN
             $references = array_filter([
                 $enrollment->reference,
                 $enrollment->request_id,
@@ -40,9 +113,7 @@ class NINmodController extends Controller
             ]);
 
             $lastError = 'Record not found.';
-            $success = false;
 
-            // Try with reference/request_id/ticket_id first
             foreach ($references as $ref) {
                 $response = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $apiToken,
@@ -55,13 +126,12 @@ class NINmodController extends Controller
                     $data = $response->json();
                     if (isset($data['success']) && $data['success'] && isset($data['data'])) {
                         $this->updateEnrollment($enrollment, $data['data']);
-                        return $this->statusResponse($enrollment, $ref);
+                        return ['success' => true, 'matched_using' => $ref];
                     }
                 }
                 $lastError = $response->json('message') ?? 'Record not found.';
             }
 
-            // Fallback to searching by NIN if possible
             if ($enrollment->nin) {
                 $response = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $apiToken,
@@ -74,22 +144,18 @@ class NINmodController extends Controller
                     $data = $response->json();
                     if (isset($data['success']) && $data['success'] && isset($data['data'])) {
                         $this->updateEnrollment($enrollment, $data['data']);
-                        return $this->statusResponse($enrollment, $enrollment->nin);
+                        return ['success' => true, 'matched_using' => $enrollment->nin];
                     }
                 }
                 $lastError = $response->json('message') ?? $lastError;
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch status from API: ' . $lastError,
-            ], 400);
+            Log::warning("NINmod Status Check Failed for ID {$enrollment->id}: " . $lastError);
+            return ['success' => false, 'message' => $lastError];
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-            ], 500);
+            Log::error("NINmod Status Check Exception for ID {$enrollment->id}: " . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
 

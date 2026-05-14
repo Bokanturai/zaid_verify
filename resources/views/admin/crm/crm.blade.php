@@ -233,6 +233,9 @@
                                                 <i class="ti ti-refresh me-2 fs-18"></i> Clear
                                             </a>
                                         @endif
+                                        <button type="button" id="batchCheckBtn" class="btn btn-info text-white px-4 py-2 d-flex align-items-center justify-content-center">
+                                            <i class="ti ti-loader-2 me-2 fs-18"></i> Batch Check (10)
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -440,6 +443,54 @@
             });
         }
 
+        // Batch Sync
+        document.getElementById('batchCheckBtn').addEventListener('click', function() {
+            const btn = this;
+            const originalHtml = btn.innerHTML;
 
+            Swal.fire({
+                title: 'Batch Syncing...',
+                text: 'Checking status for up to 10 requests. Please wait...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Checking...';
+
+            fetch("{{ route('admin.crm.check-batch') }}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Batch Check Completed',
+                            text: data.message,
+                            confirmButtonText: 'Great!'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Batch Check Info',
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Batch check failed: ' + error.message
+                    });
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                });
+        });
     </script>
 </x-app-layout>

@@ -26,7 +26,92 @@ class ValidationController extends Controller
     {
         try {
             $enrollment = AgentService::findOrFail($id);
-            
+            $result = $this->performStatusCheck($enrollment);
+
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status updated successfully using reference: ' . ($enrollment->reference ?? 'N/A'),
+                    'data' => [
+                        'status' => $enrollment->status,
+                        'comment' => $enrollment->comment,
+                        'file_url' => $enrollment->file_url,
+                        'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch status from API: ' . ($result['message'] ?? 'Unknown error'),
+            ], 400);
+
+        } catch (\Exception $e) {
+            Log::error('Admin Validation Status Check Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Batch check status for up to 10 validation requests
+     */
+    public function checkBatchStatus()
+    {
+        try {
+            $enrollments = AgentService::where('service_type', 'NIN_VALIDATION')
+                ->whereIn('status', ['pending', 'processing', 'in-progress', 'in-prograce', 'query'])
+                ->orderBy('created_at', 'asc')
+                ->limit(10)
+                ->get();
+
+            if ($enrollments->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No eligible validation requests found for batch status check.'
+                ], 404);
+            }
+
+            $successCount = 0;
+            $failedCount = 0;
+
+            foreach ($enrollments as $enrollment) {
+                $result = $this->performStatusCheck($enrollment);
+                if ($result['success']) {
+                    $successCount++;
+                } else {
+                    $failedCount++;
+                }
+                
+                // Rate limiting delay (0.5 seconds)
+                usleep(500000);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Batch check completed. Success: {$successCount}, Failed: {$failedCount}.",
+                'data' => [
+                    'success_count' => $successCount,
+                    'failed_count' => $failedCount,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batch check failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Core logic to perform validation status check via API
+     */
+    private function performStatusCheck($enrollment)
+    {
+        try {
             $apiToken = env('AREWA_API_TOKEN');
             $baseUrl = env('AREWA_BASE_URL');
             $endpoint = rtrim($baseUrl, '/') . '/nin/validation';
@@ -60,32 +145,16 @@ class ValidationController extends Controller
                 }
 
                 $enrollment->update($updateData);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Status updated successfully using reference: ' . ($enrollment->reference ?? 'N/A'),
-                    'data' => [
-                        'status' => $enrollment->status,
-                        'comment' => $enrollment->comment,
-                        'file_url' => $enrollment->file_url,
-                        'updated_at' => $enrollment->updated_at->format('M j, Y g:i A')
-                    ]
-                ]);
+                return ['success' => true];
             }
 
             $lastError = $response->json('message') ?? $response->json('error') ?? 'Record not found or API error.';
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch status from API: ' . $lastError,
-            ], 400);
+            Log::warning("Validation Status Check Failed for ID {$enrollment->id}: " . $lastError);
+            return ['success' => false, 'message' => $lastError];
 
         } catch (\Exception $e) {
-            Log::error('Admin Validation Status Check Error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-            ], 500);
+            Log::error("Validation Status Check Exception for ID {$enrollment->id}: " . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
     /**

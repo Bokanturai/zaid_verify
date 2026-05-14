@@ -275,7 +275,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [ManualSearchController::class, 'index'])->name('phone.search.index');
         Route::post('/', [ManualSearchController::class, 'store'])->name('phone.search.store');
         Route::get('/{id}/details', [ManualSearchController::class, 'showDetails'])->name('phone.search.details');
+        Route::get('/check/{id}', [ManualSearchController::class, 'checkStatus'])->name('phone.search.check');
     });
+
 
     Route::prefix('license')->group(function () {
         Route::get('/', [LicenseController::class, 'index'])->name('license.index');
@@ -342,6 +344,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // BVN Modification
             Route::prefix('bvnmod')->name('bvnmod.')->group(function () {
                 Route::get('/', [BVNmodController::class, 'index'])->name('index');
+                Route::get('/check-batch', [BVNmodController::class, 'checkBatchStatus'])->name('check-batch');
                 Route::get('/{id}', [BVNmodController::class, 'show'])->name('show');
                 Route::post('/{id}/update', [BVNmodController::class, 'update'])->name('update');
                 Route::get('/check/{id}', [BVNmodController::class, 'checkStatus'])->name('check');
@@ -357,13 +360,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // BVN Search
             Route::prefix('bvn-search')->name('bvn-search.')->group(function () {
                 Route::get('/', [BvnSearchController::class, 'index'])->name('index');
+                Route::get('/check-batch', [BvnSearchController::class, 'checkBatchStatus'])->name('check-batch');
                 Route::get('/{id}', [BvnSearchController::class, 'show'])->name('show');
                 Route::post('/{id}/update', [BvnSearchController::class, 'update'])->name('update');
+                Route::get('/check/{id}', [BvnSearchController::class, 'checkStatus'])->name('check');
             });
+
 
             // CRM
             Route::prefix('crm')->name('crm.')->group(function () {
                 Route::get('/', [CRMController::class, 'index'])->name('index');
+                Route::get('/check-batch', [CRMController::class, 'checkBatchStatus'])->name('check-batch');
                 Route::get('/{id}', [CRMController::class, 'show'])->name('show');
                 Route::post('/{id}/update', [CRMController::class, 'update'])->name('update');
                 Route::get('/check/{id}', [CRMController::class, 'checkStatus'])->name('check');
@@ -375,6 +382,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // NIN Modification
             Route::prefix('ninmod')->name('ninmod.')->group(function () {
                 Route::get('/', [NINmodController::class, 'index'])->name('index');
+                Route::get('/check-batch', [NINmodController::class, 'checkBatchStatus'])->name('check-batch');
                 Route::get('/{id}', [NINmodController::class, 'show'])->name('show');
                 Route::post('/{id}/update', [NINmodController::class, 'update'])->name('update');
                 Route::get('/check/{id}', [NINmodController::class, 'checkStatus'])->name('check');
@@ -383,6 +391,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // NIN IPE
             Route::prefix('ninipe')->name('ninipe.')->group(function () {
                 Route::get('/', [NinIpeController::class, 'index'])->name('index');
+                Route::get('/check-batch', [NinIpeController::class, 'checkBatchStatus'])->name('check-batch');
                 Route::get('/{id}', [NinIpeController::class, 'show'])->name('show');
                 Route::post('/{id}/update', [NinIpeController::class, 'update'])->name('update');
                 Route::get('/check/{id}', [NinIpeController::class, 'checkStatus'])->name('check');
@@ -400,6 +409,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // Validation
             Route::prefix('validation')->name('validation.')->group(function () {
                 Route::get('/', [ValidationController::class, 'index'])->name('index');
+                Route::get('/check-batch', [ValidationController::class, 'checkBatchStatus'])->name('check-batch');
                 Route::get('/{id}', [ValidationController::class, 'show'])->name('show');
                 Route::post('/{id}/update', [ValidationController::class, 'update'])->name('update');
                 Route::get('/check/{id}', [ValidationController::class, 'checkStatus'])->name('check');
