@@ -235,8 +235,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('nin-suspension')->group(function () {
-        Route::get('/', [SuspensionNinController::class, 'index'])->name('nin-suspension');
-        Route::post('/', [SuspensionNinController::class, 'store'])->name('nin-suspension.store');
+        Route::get('/', [SuspensionNinController::class, 'index'])->name('nin.suspension');
+        Route::post('/', [SuspensionNinController::class, 'store'])->name('nin.suspension.store');
     });
 
 

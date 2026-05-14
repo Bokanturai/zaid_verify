@@ -156,7 +156,7 @@
                                 ['route' => route('phone.search.index'), 'icon' => 'ti-search', 'color' => 'success', 'name' => 'Search BVN'],
                                 ['route' => route('nin-modification'), 'icon' => 'ti-id', 'color' => 'info', 'name' => 'NIN Mod'],
                                 ['route' => route('nin-validation'), 'icon' => 'ti-checkbox', 'color' => 'warning', 'name' => 'NIN Validation'],
-                                ['route' => route('nin-suspension'), 'icon' => 'ti-shield-lock', 'color' => 'danger', 'name' => 'NIN Suspension'],
+                                ['route' => route('nin.suspension'), 'icon' => 'ti-shield-lock', 'color' => 'danger', 'name' => 'NIN Suspension'],
                                 ['route' => route('ipe.index'), 'icon' => 'ti-clear-formatting', 'color' => 'info', 'name' => 'IPE'],
                                 ['modal' => '#verifyModal', 'icon' => 'ti-id-badge', 'color' => 'info', 'name' => 'Verify NIN'],
                                 ['modal' => '#verifyBVNModal', 'icon' => 'ti-shield-check', 'color' => 'secondary', 'name' => 'Verify BVN'],

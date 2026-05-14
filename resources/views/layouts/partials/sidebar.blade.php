@@ -88,8 +88,8 @@
                                 class="{{ request()->routeIs('ipe.index') ? 'active' : '' }}">IPE</a></li>
                         <li><a href="{{ route('nin-personalisation.index') }}"
                                 class="{{ request()->routeIs('nin-personalisation.index') ? 'active' : '' }}">Personalisation</a></li>
-                        <li><a href="{{ route('nin-suspension') }}"
-                                class="{{ request()->routeIs('nin-suspension') ? 'active' : '' }}">Suspension NIN</a></li>
+                        <li><a href="{{ route('nin.suspension') }}"
+                                class="{{ request()->routeIs('nin.suspension') ? 'active' : '' }}">Suspension NIN</a></li>
 
                     </ul>
                 </li>

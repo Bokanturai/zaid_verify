@@ -23,7 +23,7 @@
                         </div>
 
                         <div class="card-body p-4">
-                            <form method="POST" action="{{ route('nin-suspension.store') }}" class="row g-4" id="suspensionForm" onsubmit="return handleFormSubmit(event)">
+                            <form method="POST" action="{{ route('nin.suspension.store') }}" class="row g-4" id="suspensionForm" onsubmit="return handleFormSubmit(event)">
                                 @csrf
                                 <input type="hidden" name="field_id" value="{{ $fieldId }}">
 
