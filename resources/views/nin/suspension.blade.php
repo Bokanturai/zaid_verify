@@ -1,5 +1,5 @@
 <x-app-layout>
-    <title>zaidy Verify - {{ $title ?? 'Suspension NIN' }}</title>
+    <title>Zaid Verify - {{ $title ?? 'Suspension NIN' }}</title>
 
     <div class="page-body">
         <div class="container-fluid">
