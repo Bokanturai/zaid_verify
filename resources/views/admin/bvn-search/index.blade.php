@@ -1,5 +1,5 @@
 <x-app-layout>
- <title>Safana Digital - BVN Search</title>
+ <title>Zaid verify - BVN Search</title>
       <div class="page-body">
     <div class="container-fluid">
       <div class="page-title">

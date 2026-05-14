@@ -1,5 +1,5 @@
 <x-app-layout>
-    <title>Safana Digital - Transactions</title>
+    <title>Zaid verify - Transactions</title>
 
     <div class="content">
         <!-- Stats Cards -->

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <title>Safana Digital - Support Center</title>
+    <title>Zaid verify - Support Center</title>
 
     <div class="page-body">
         <div class="container-fluid">

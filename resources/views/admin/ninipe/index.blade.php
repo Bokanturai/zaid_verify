@@ -1,5 +1,5 @@
 <x-app-layout>
- <title>Safana Digital - NIN - IPE</title>
+ <title>Zaid verify - NIN - IPE</title>
       <div class="page-body">
     <div class="container-fluid">
       <div class="page-title">

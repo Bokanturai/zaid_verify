@@ -1,5 +1,5 @@
 <x-app-layout>
-    <title>Safana Digital - Data Variations Management</title>
+    <title>Zaid verify - Data Variations Management</title>
 
     <div class="content">
         <!-- Page Header -->

@@ -1,5 +1,5 @@
 <x-app-layout>
-   <title>Safana Digital - Services Management</title>
+   <title>Zaid verify - Services Management</title>
 
     <div class="content">
         <!-- Page Header -->

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <title>Safana Digital - License Details</title>
+    <title>Zaid verify - License Details</title>
 
     <div class="content p-4">
         <div class="row mb-4">

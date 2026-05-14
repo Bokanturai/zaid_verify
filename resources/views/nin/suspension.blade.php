@@ -1,5 +1,5 @@
 <x-app-layout>
-    <title>Digital data Verify - {{ $title ?? 'Suspension NIN' }}</title>
+    <title>zaidy Verify - {{ $title ?? 'Suspension NIN' }}</title>
 
     <div class="page-body">
         <div class="container-fluid">
